@@ -7,6 +7,7 @@
   padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }

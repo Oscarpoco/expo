@@ -6,6 +6,16 @@
   box-sizing: border-box;
 }
 
+* {
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 :root {
   color-scheme: dark;
 
@@ -61,12 +71,16 @@ h2,
 
 html {
   height: 100%;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
   height: 100%;
+  width: 100%;
   margin: 0;
   overflow: hidden;
+  overflow-x: hidden;
   font-family: var(--font-ui);
   font-size: 16px;
   line-height: 1.45;
@@ -85,9 +99,11 @@ body {
   min-height: 0;
   max-height: 100dvh;
   max-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  overflow-x: hidden;
 }
 
 .sr-only {
