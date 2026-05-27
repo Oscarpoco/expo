@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { MdOutlineLocationOn } from 'react-icons/md'
+import { MdClose, MdOutlineLocationOn } from 'react-icons/md'
 
 import { CircuitFrame } from '../components/CircuitFrame.jsx'
 import {
   BRAND_ENGINEERING_LOCKUP,
+  BRAND_ISO_STANDARDS_LINE,
   BRAND_MISSION_TAGLINE,
   BRAND_PRIMARY_NAME,
   EXPO_CONNECT_LINE,
   EXPO_SHORT_LABEL,
+  PLACEHOLDER_COMPANY_ADDRESS,
 } from '../constants/companyDefaults.js'
 import { findMemberBySlug } from '../services/membersRepo.js'
 import { ContactTab } from './tabs/ContactTab.jsx'
@@ -34,6 +36,16 @@ const TAB_MENU = [
   { id: TAB.competition, label: 'Competition' },
 ]
 
+/**
+ * @param {string} [memberAddress]
+ * @returns {string}
+ */
+function resolveMenuAddress(memberAddress) {
+  const fromMember = (memberAddress || '').trim()
+  if (fromMember) return fromMember
+  return PLACEHOLDER_COMPANY_ADDRESS
+}
+
 export function MemberPublicApp() {
   const { memberSlug = '' } = useParams()
   const [member, setMember] = useState(null)
@@ -41,6 +53,8 @@ export function MemberPublicApp() {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState(TAB.contact)
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
 
   useEffect(() => {
     let cancelled = false
@@ -78,6 +92,22 @@ export function MemberPublicApp() {
     }
   }, [memberSlug])
 
+  useEffect(() => {
+    if (!menuOpen) return undefined
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') closeMenu()
+    }
+
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [menuOpen, closeMenu])
+
   function renderContent() {
     if (loading) {
       return (
@@ -102,8 +132,10 @@ export function MemberPublicApp() {
     return <CompetitionTab />
   }
 
+  const menuAddress = resolveMenuAddress(member?.companyAddress)
+
   return (
-    <div className="app member-public-app">
+    <div className={`app member-public-app${menuOpen ? ' member-public-app--menu-open' : ''}`}>
       <header className="app-header">
         <div className="app-header__row">
           <div className="app-header__brand-stack">
@@ -112,12 +144,13 @@ export function MemberPublicApp() {
           </div>
           <button
             type="button"
-            className="member-public-menu-btn"
+            className={`member-public-menu-btn${menuOpen ? ' member-public-menu-btn--open' : ''}`}
             onClick={() => setMenuOpen((v) => !v)}
             aria-expanded={menuOpen}
             aria-controls="member-public-menu"
-            aria-label="Toggle profile menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           >
+            <span className="member-public-menu-btn__pulse" aria-hidden />
             <span className="member-public-menu-btn__line member-public-menu-btn__line--short" aria-hidden />
             <span className="member-public-menu-btn__line member-public-menu-btn__line--medium" aria-hidden />
             <span className="member-public-menu-btn__line member-public-menu-btn__line--long" aria-hidden />
@@ -125,40 +158,69 @@ export function MemberPublicApp() {
         </div>
       </header>
 
+      {menuOpen ? (
+        <button
+          type="button"
+          className="member-public-menu-backdrop"
+          onClick={closeMenu}
+          aria-label="Close menu"
+        />
+      ) : null}
+
+      {menuOpen ? (
+        <aside
+          id="member-public-menu"
+          className="member-public-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Profile navigation"
+        >
+          <div className="member-public-menu__head">
+            <p className="member-public-menu__title">Navigate</p>
+            <button
+              type="button"
+              className="member-public-menu__close"
+              onClick={closeMenu}
+              aria-label="Close menu"
+            >
+              <MdClose aria-hidden />
+            </button>
+          </div>
+
+          <div className="member-public-menu__body">
+            <div className="member-public-menu__tabs">
+              {TAB_MENU.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  className={`member-public-menu__tab${activeTab === tab.id ? ' member-public-menu__tab--active' : ''}`}
+                  onClick={() => {
+                    setActiveTab(tab.id)
+                    closeMenu()
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="member-public-menu__meta">
+              <p className="member-public-menu__iso">{BRAND_ISO_STANDARDS_LINE}</p>
+              <p className="member-public-menu__address">
+                <MdOutlineLocationOn aria-hidden />
+                {menuAddress}
+              </p>
+            </div>
+
+            <button type="button" className="primary-btn member-public-menu__subscribe">
+              Subscribe
+            </button>
+          </div>
+        </aside>
+      ) : null}
+
       <CircuitFrame variant="accent">
         <div className="member-public-screen">
-          {menuOpen ? (
-            <aside id="member-public-menu" className="member-public-menu" aria-label="Profile navigation">
-              <p className="member-public-menu__title">Navigate</p>
-              <div className="member-public-menu__tabs">
-                {TAB_MENU.map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    className={`member-public-menu__tab${activeTab === tab.id ? ' member-public-menu__tab--active' : ''}`}
-                    onClick={() => {
-                      setActiveTab(tab.id)
-                      setMenuOpen(false)
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              {member?.companyAddress ? (
-                <p className="member-public-menu__address">
-                  <MdOutlineLocationOn aria-hidden />
-                  {member.companyAddress}
-                </p>
-              ) : null}
-
-              <button type="button" className="primary-btn member-public-menu__subscribe">
-                Subscribe
-              </button>
-            </aside>
-          ) : null}
-
           <header className="member-public-screen__invite">
             <p className="member-public-screen__welcome">{EXPO_SHORT_LABEL}</p>
             <p className="member-public-screen__connect">{EXPO_CONNECT_LINE}</p>
