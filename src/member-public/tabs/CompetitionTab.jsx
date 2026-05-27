@@ -94,8 +94,8 @@ export function CompetitionTab({ member }) {
         Complete these milestones to win prizes.
       </p>
       <p className="competition-tab__detail">
-        Finish all 3 steps to qualify. Progress is saved in this browser, so
-        when you return your completed milestones stay marked.
+        Finish all 3 steps to qualify, submit your email, and confirm your
+        competition entry.
       </p>
 
       <ol className="competition-tab__milestones">

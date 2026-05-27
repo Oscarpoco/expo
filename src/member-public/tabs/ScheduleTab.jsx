@@ -8,12 +8,18 @@ export function ScheduleTab() {
     <section className="schedule-tab" aria-labelledby="schedule-heading">
       <header className="schedule-tab__head">
         <h2 id="schedule-heading">Schedule</h2>
-        <p>Training document is ready to view and download.</p>
+        <p>Download the training schedule document below.</p>
       </header>
 
-      <div className="schedule-tab__pdf-card">
-        <div className="schedule-tab__pdf-meta">
-          <p className="schedule-tab__pdf-name">training.pdf</p>
+      <div className="schedule-tab__milestones">
+        <article className="schedule-tab__milestone">
+          <div className="schedule-tab__pdf-meta">
+            <p className="schedule-tab__pdf-name">training.pdf</p>
+            <p className="schedule-tab__pdf-note">
+              Official training material for expo participation.
+            </p>
+          </div>
+
           <a
             className="primary-btn schedule-tab__download"
             href={schedulePdfPath}
@@ -25,15 +31,7 @@ export function ScheduleTab() {
           >
             Download PDF
           </a>
-        </div>
-
-        <div className="schedule-tab__viewer-wrap">
-          <iframe
-            className="schedule-tab__viewer"
-            src={`${schedulePdfPath}#view=FitH`}
-            title="Training schedule PDF preview"
-          />
-        </div>
+        </article>
       </div>
     </section>
   )
