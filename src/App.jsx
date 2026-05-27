@@ -1,16 +1,26 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { ExpoApp } from './ExpoApp.jsx'
 import { MemberPublicApp } from './member-public/MemberPublicApp.jsx'
 
-export default function App() {
+function AppRoutes() {
+  const location = useLocation()
+
   return (
-    <BrowserRouter>
-      <Routes>
+    <div key={location.pathname} className="morph-surface morph-surface--route">
+      <Routes location={location}>
         <Route path="/" element={<ExpoApp />} />
         <Route path="/:memberSlug" element={<MemberPublicApp />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </div>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
     </BrowserRouter>
   )
 }

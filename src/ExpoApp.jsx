@@ -278,7 +278,11 @@ export function ExpoApp() {
           </div>
         </div>
       </header>
-      <main className="app-main">{body}</main>
+      <main className="app-main">
+        <div key={phase} className="morph-surface">
+          {body}
+        </div>
+      </main>
       {toast ? (
         <Toast
           message={toast.message}

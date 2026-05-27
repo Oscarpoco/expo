@@ -1,7 +1,8 @@
 .member-public-app {
   background-color: transparent;
-  min-height: 100dvh;
-  min-height: 100vh;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
   overflow: hidden;
   position: relative;
 }
@@ -383,9 +384,18 @@
 .member-public-screen__main {
   flex: 1;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 0.75rem;
+}
+
+/* Tab morph wrapper must size to content, not stretch the scroll area */
+.member-public-screen__main > .morph-surface {
+  flex: none;
+  min-height: auto;
+  display: block;
 }
 
 .member-public__state {

@@ -108,6 +108,12 @@ export function MemberPublicApp() {
     }
   }, [menuOpen, closeMenu])
 
+  const contentKey = loading
+    ? 'loading'
+    : error || !member
+      ? 'error'
+      : activeTab
+
   function renderContent() {
     if (loading) {
       return (
@@ -158,23 +164,24 @@ export function MemberPublicApp() {
         </div>
       </header>
 
-      {menuOpen ? (
-        <button
-          type="button"
-          className="member-public-menu-backdrop"
-          onClick={closeMenu}
-          aria-label="Close menu"
-        />
-      ) : null}
+      <button
+        type="button"
+        className={`member-public-menu-backdrop${menuOpen ? ' is-open' : ''}`}
+        onClick={closeMenu}
+        aria-label="Close menu"
+        aria-hidden={!menuOpen}
+        tabIndex={menuOpen ? 0 : -1}
+      />
 
-      {menuOpen ? (
-        <aside
-          id="member-public-menu"
-          className="member-public-menu"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Profile navigation"
-        >
+      <aside
+        id="member-public-menu"
+        className={`member-public-menu${menuOpen ? ' is-open' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Profile navigation"
+        aria-hidden={!menuOpen}
+        inert={menuOpen ? undefined : ''}
+      >
           <div className="member-public-menu__head">
             <p className="member-public-menu__title">Navigate</p>
             <button
@@ -216,8 +223,7 @@ export function MemberPublicApp() {
               Subscribe
             </button>
           </div>
-        </aside>
-      ) : null}
+      </aside>
 
       <CircuitFrame variant="accent">
         <div className="member-public-screen">
@@ -228,7 +234,11 @@ export function MemberPublicApp() {
             <p className="member-public-screen__mission">{BRAND_MISSION_TAGLINE}</p>
           </header>
 
-          <main className="member-public-screen__main">{renderContent()}</main>
+          <main className="member-public-screen__main">
+            <div key={contentKey} className="morph-surface morph-surface--panel">
+              {renderContent()}
+            </div>
+          </main>
         </div>
       </CircuitFrame>
     </div>
