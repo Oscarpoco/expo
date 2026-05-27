@@ -13,6 +13,11 @@ import {
   PLACEHOLDER_COMPANY_ADDRESS,
 } from '../constants/companyDefaults.js'
 import { findMemberBySlug } from '../services/membersRepo.js'
+import {
+  createConnectionRecord,
+  incrementAnonymousConnection,
+  incrementKnownConnection,
+} from '../services/connectionsRepo.js'
 import { ContactTab } from './tabs/ContactTab.jsx'
 import { CategoriesTab } from './tabs/CategoriesTab.jsx'
 import { ScheduleTab } from './tabs/ScheduleTab.jsx'
@@ -46,6 +51,16 @@ function resolveMenuAddress(memberAddress) {
   return PLACEHOLDER_COMPANY_ADDRESS
 }
 
+const AREA_OF_INTEREST_OPTIONS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+function seenPromptKey(memberId) {
+  return `wwise.connect.seen.${memberId}`
+}
+
+function knownCountedKey(memberId) {
+  return `wwise.connect.known.${memberId}`
+}
+
 export function MemberPublicApp() {
   const { memberSlug = '' } = useParams()
   const [member, setMember] = useState(null)
@@ -53,6 +68,16 @@ export function MemberPublicApp() {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState(TAB.contact)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [connectOpen, setConnectOpen] = useState(false)
+  const [connectBusy, setConnectBusy] = useState(false)
+  const [connectError, setConnectError] = useState('')
+  const [connectForm, setConnectForm] = useState({
+    fullName: '',
+    email: '',
+    contactNumber: '',
+    companyName: '',
+    areaOfInterest: '',
+  })
 
   const closeMenu = useCallback(() => setMenuOpen(false), [])
 
@@ -74,6 +99,19 @@ export function MemberPublicApp() {
         }
 
         setMember(record)
+
+        const key = seenPromptKey(record.id)
+        const alreadySeen = window.localStorage.getItem(key) === '1'
+
+        if (!alreadySeen) {
+          window.localStorage.setItem(key, '1')
+          setConnectOpen(true)
+          incrementAnonymousConnection({
+            memberId: record.id,
+            memberSlug: record.profileSlug || record.id,
+            memberName: record.fullName,
+          }).catch(() => {})
+        }
       } catch (loadError) {
         if (cancelled) return
         const message =
@@ -93,10 +131,15 @@ export function MemberPublicApp() {
   }, [memberSlug])
 
   useEffect(() => {
-    if (!menuOpen) return undefined
+    if (!menuOpen && !connectOpen) return undefined
 
     const onKeyDown = (event) => {
-      if (event.key === 'Escape') closeMenu()
+      if (event.key !== 'Escape') return
+      if (connectOpen) {
+        setConnectOpen(false)
+        return
+      }
+      closeMenu()
     }
 
     document.body.style.overflow = 'hidden'
@@ -106,7 +149,88 @@ export function MemberPublicApp() {
       document.body.style.overflow = ''
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [menuOpen, closeMenu])
+  }, [menuOpen, connectOpen, closeMenu])
+
+  const setConnectField = useCallback((key, value) => {
+    setConnectForm((prev) => ({ ...prev, [key]: value }))
+  }, [])
+
+  const openConnectModal = useCallback(() => {
+    setConnectError('')
+    setConnectOpen(true)
+  }, [])
+
+  const closeConnectModal = useCallback(() => {
+    setConnectError('')
+    setConnectOpen(false)
+  }, [])
+
+  const submitConnection = useCallback(
+    async (event) => {
+      event.preventDefault()
+      if (!member) return
+
+      const payload = {
+        fullName: connectForm.fullName.trim(),
+        email: connectForm.email.trim(),
+        contactNumber: connectForm.contactNumber.trim(),
+        companyName: connectForm.companyName.trim(),
+        areaOfInterest: connectForm.areaOfInterest.trim(),
+      }
+
+      if (
+        !payload.fullName ||
+        !payload.email ||
+        !payload.contactNumber ||
+        !payload.companyName ||
+        !payload.areaOfInterest
+      ) {
+        setConnectError('Please complete all fields before submitting.')
+        return
+      }
+
+      setConnectBusy(true)
+      setConnectError('')
+
+      try {
+        await createConnectionRecord({
+          memberId: member.id,
+          memberSlug: member.profileSlug || member.id,
+          memberName: member.fullName,
+          ...payload,
+        })
+
+        const knownKey = knownCountedKey(member.id)
+        const knownAlreadyCounted = window.localStorage.getItem(knownKey) === '1'
+        if (!knownAlreadyCounted) {
+          await incrementKnownConnection({
+            memberId: member.id,
+            memberSlug: member.profileSlug || member.id,
+            memberName: member.fullName,
+          })
+          window.localStorage.setItem(knownKey, '1')
+        }
+
+        setConnectForm({
+          fullName: '',
+          email: '',
+          contactNumber: '',
+          companyName: '',
+          areaOfInterest: '',
+        })
+        setConnectOpen(false)
+      } catch (submitError) {
+        const message =
+          typeof submitError?.message === 'string'
+            ? submitError.message
+            : 'Could not submit your details right now.'
+        setConnectError(message)
+      } finally {
+        setConnectBusy(false)
+      }
+    },
+    [connectForm, member],
+  )
 
   const contentKey = loading
     ? 'loading'
@@ -219,11 +343,122 @@ export function MemberPublicApp() {
               </p>
             </div>
 
-            <button type="button" className="primary-btn member-public-menu__subscribe">
+            <button
+              type="button"
+              className="primary-btn member-public-menu__subscribe"
+              onClick={() => {
+                closeMenu()
+                openConnectModal()
+              }}
+            >
               Connect
             </button>
           </div>
       </aside>
+
+      {connectOpen ? (
+        <div className="member-connect-modal" role="dialog" aria-modal="true" aria-label="Connect form">
+          <div className="member-connect-modal__panel">
+            <div className="member-connect-modal__head">
+              <h3>Connect</h3>
+              <button
+                type="button"
+                className="member-connect-modal__close"
+                onClick={closeConnectModal}
+                aria-label="Close connect form"
+              >
+                <MdClose aria-hidden />
+              </button>
+            </div>
+
+            <p className="member-connect-modal__note">
+              Share your details if you want this member to follow up with you.
+            </p>
+
+            <form className="member-connect-modal__form" onSubmit={submitConnection}>
+              <label className="field-label" htmlFor="connect-full-name">
+                Full name
+              </label>
+              <input
+                id="connect-full-name"
+                className="text-input text-input--tall"
+                value={connectForm.fullName}
+                onChange={(event) => setConnectField('fullName', event.target.value)}
+                disabled={connectBusy}
+                required
+              />
+
+              <label className="field-label" htmlFor="connect-email">
+                Email
+              </label>
+              <input
+                id="connect-email"
+                type="email"
+                className="text-input text-input--tall"
+                value={connectForm.email}
+                onChange={(event) => setConnectField('email', event.target.value)}
+                disabled={connectBusy}
+                required
+              />
+
+              <label className="field-label" htmlFor="connect-contact-number">
+                Contact number
+              </label>
+              <input
+                id="connect-contact-number"
+                type="tel"
+                className="text-input text-input--tall"
+                value={connectForm.contactNumber}
+                onChange={(event) => setConnectField('contactNumber', event.target.value)}
+                disabled={connectBusy}
+                required
+              />
+
+              <label className="field-label" htmlFor="connect-company-name">
+                Company name
+              </label>
+              <input
+                id="connect-company-name"
+                className="text-input text-input--tall"
+                value={connectForm.companyName}
+                onChange={(event) => setConnectField('companyName', event.target.value)}
+                disabled={connectBusy}
+                required
+              />
+
+              <label className="field-label" htmlFor="connect-area-of-interest">
+                Area of interest
+              </label>
+              <select
+                id="connect-area-of-interest"
+                className="text-input text-input--tall"
+                value={connectForm.areaOfInterest}
+                onChange={(event) => setConnectField('areaOfInterest', event.target.value)}
+                disabled={connectBusy}
+                required
+              >
+                <option value="">Select an option</option>
+                {AREA_OF_INTEREST_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              {connectError ? <p className="form-error">{connectError}</p> : null}
+
+              <div className="member-connect-modal__actions">
+                <button type="button" className="ghost-btn" onClick={closeConnectModal} disabled={connectBusy}>
+                  Skip for now
+                </button>
+                <button type="submit" className="primary-btn" disabled={connectBusy}>
+                  {connectBusy ? 'Submitting...' : 'Submit'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
 
       <CircuitFrame variant="accent">
         <div className="member-public-screen">
