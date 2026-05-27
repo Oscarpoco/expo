@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import {
   FaLinkedinIn,
-  FaWhatsapp,
 } from 'react-icons/fa6'
 import {
   MdBusiness,
@@ -37,6 +36,7 @@ function displayCompanyName(companyName) {
 function normalizeExternalUrl(url) {
   const trimmed = (url || '').trim()
   if (!trimmed) return ''
+  if (trimmed === '-' || /^n\/?a$/i.test(trimmed)) return ''
   if (/^https?:\/\//i.test(trimmed)) return trimmed
   return `https://${trimmed}`
 }
@@ -112,17 +112,6 @@ export function ContactTab({ member }) {
         href: linkedIn,
         shareText: linkedIn,
         Icon: FaLinkedinIn,
-      })
-    }
-
-    const whatsApp = normalizeExternalUrl(member.whatsAppLink)
-    if (whatsApp) {
-      items.push({
-        id: 'whatsapp',
-        label: 'WhatsApp',
-        href: whatsApp,
-        shareText: whatsApp,
-        Icon: FaWhatsapp,
       })
     }
 

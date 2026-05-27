@@ -220,7 +220,7 @@ export function MemberPublicApp() {
             </div>
 
             <button type="button" className="primary-btn member-public-menu__subscribe">
-              Subscribe
+              Connect
             </button>
           </div>
       </aside>
