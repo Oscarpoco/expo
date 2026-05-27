@@ -1,0 +1,15 @@
+{
+  "name": "wwise-expo-functions",
+  "description": "Firestore triggers for wwise-expo (welcome email on member signup)",
+  "type": "commonjs",
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "firebase-admin": "^13.0.2",
+    "firebase-functions": "^6.5.0"
+  },
+  "private": true
+}

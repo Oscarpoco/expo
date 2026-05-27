@@ -1,0 +1,16 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    //
+    // DEVELOPMENT-oriented: authenticated users (anonymous allowed) only.
+    // Tighten for production alongside Firestore rules.
+    //
+    match /memberProfilePhotos/{photoId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.size < 3 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow update, delete: if false;
+    }
+  }
+}

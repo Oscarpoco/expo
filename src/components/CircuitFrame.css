@@ -1,0 +1,104 @@
+.circuit-frame {
+  position: relative;
+  isolation: isolate;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--circuit-board-bg);
+}
+
+/* Decorative layers stay behind interactive content (explicit stacking). */
+.circuit-frame__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.circuit-frame__blueprint {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.24;
+  background-image:
+    linear-gradient(rgba(0, 200, 170, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 200, 170, 0.055) 1px, transparent 1px);
+  background-size: 26px 26px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 85% 70% at 50% 40%, black 22%, transparent 78%);
+}
+
+.circuit-frame__grid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.42;
+  background-size: 20px 20px;
+  background-image: radial-gradient(
+    circle at center,
+    rgba(0, 230, 190, 0.1) 1px,
+    transparent 1px
+  );
+  pointer-events: none;
+}
+
+.circuit-frame--accent .circuit-frame__grid {
+  opacity: 0.5;
+  background-image: radial-gradient(
+    circle at center,
+    rgba(0, 255, 215, 0.14) 1px,
+    transparent 1px
+  );
+  background-size: 19px 19px;
+  background-position: 0 0;
+}
+
+/* Soft scan-line highlight — expo screens read as “live systems” */
+.circuit-frame__beam {
+  position: absolute;
+  inset: -35% -20%;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse 52% 28% at 50% -5%,
+    rgba(240, 180, 41, 0.07),
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.circuit-frame--accent .circuit-frame__beam {
+  background: radial-gradient(
+      ellipse 55% 32% at 50% -2%,
+      rgba(240, 180, 41, 0.1),
+      transparent 72%
+    ),
+    radial-gradient(ellipse 80% 40% at 50% 100%, rgba(0, 255, 210, 0.05), transparent 65%);
+}
+
+.circuit-frame__svg {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 112%;
+  height: 118%;
+  left: -6%;
+  top: -6%;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.circuit-frame__slot {
+  position: relative;
+  z-index: 10;
+  isolation: isolate;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.circuit-frame__slot--padded {
+  padding: 1rem 1.15rem calc(1.35rem + env(safe-area-inset-bottom));
+}

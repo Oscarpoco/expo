@@ -1,0 +1,117 @@
+.expo-tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top: 1px solid var(--circuit-outline);
+  background: linear-gradient(
+    180deg,
+    rgba(14, 22, 30, 0.98) 0%,
+    rgba(10, 14, 20, 0.99) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(0, 255, 215, 0.06),
+    0 -4px 24px rgba(0, 0, 0, 0.35);
+}
+
+.expo-tab-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 11px;
+  background: linear-gradient(
+    90deg,
+    var(--signal-amber) 0,
+    var(--signal-amber) 4px,
+    var(--circuit-board-accent) 4px,
+    var(--circuit-board-accent) 5px,
+    var(--circuit-trace-strong) 5px,
+    var(--circuit-trace-strong) 9px,
+    transparent 9px,
+    transparent 11px
+  );
+  box-shadow:
+    6px 0 22px rgba(0, 255, 200, 0.15),
+    4px 0 18px rgba(240, 180, 41, 0.12);
+}
+
+.expo-tab-bar__inner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: min(22rem, 100%);
+  min-height: 3.35rem;
+  margin: 0 auto;
+  padding-left: 11px;
+}
+
+.expo-tab-bar__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18rem;
+  padding: 0.4rem 0.2rem 0.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease;
+}
+
+.expo-tab-bar__item::after {
+  content: '';
+  position: absolute;
+  left: 0.35rem;
+  right: 0.35rem;
+  bottom: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.18s ease;
+}
+
+.expo-tab-bar__item--active {
+  color: var(--circuit-trace-strong);
+  background: rgba(0, 245, 200, 0.04);
+}
+
+.expo-tab-bar__item--active::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--circuit-trace-strong),
+    transparent
+  );
+}
+
+.expo-tab-bar__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.expo-tab-bar__label {
+  font-family: var(--font-industrial);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.expo-tab-bar__item:active {
+  opacity: 0.82;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expo-tab-bar__item,
+  .expo-tab-bar__item::after {
+    transition: none;
+  }
+}

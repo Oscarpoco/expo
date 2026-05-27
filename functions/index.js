@@ -1,0 +1,184 @@
+const path = require('path')
+
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') })
+require('dotenv').config({ path: path.join(__dirname, '.env') })
+
+const { getApps, initializeApp } = require('firebase-admin/app')
+const { getFirestore, FieldValue } = require('firebase-admin/firestore')
+
+const { onDocumentCreated } = require('firebase-functions/v2/firestore')
+const { logger } = require('firebase-functions')
+
+function ensureAdmin() {
+  if (!getApps().length) {
+    initializeApp()
+  }
+}
+
+const PROGRAM_DISPLAY_NAME = 'wwise-expo'
+
+/**
+ * Sends member code mail after Firestore creates a `members` document.
+ *
+ * Credentials: add `RESEND_API_KEY` and `TRANSACTION_MAIL_FROM` to the repo-root
+ * `.env` (same file as Firebase web vars, but NEVER use `VITE_` for these —
+ * deploy runs `functions/sync-env-from-root.js`, which bundles them only into Cloud Functions).
+ */
+
+exports.sendMemberWelcomeEmail = onDocumentCreated(
+  {
+    document: 'members/{memberId}',
+    region: 'africa-south1',
+  },
+  async (event) => {
+    ensureAdmin()
+
+    const memberId = event.params.memberId
+    const snapshot = event.data
+    if (!snapshot) {
+      logger.warn(`sendMemberWelcomeEmail: empty snapshot (${memberId})`)
+      return
+    }
+
+    const row = snapshot.data()
+    const toRaw = typeof row.email === 'string' ? row.email.trim() : ''
+    const memberCode =
+      typeof row.memberCode === 'string' ? row.memberCode.trim() : ''
+    const fullNameRaw =
+      typeof row.fullName === 'string' ? row.fullName.trim() : ''
+
+    if (!toRaw || !memberCode) {
+      logger.info(
+        'sendMemberWelcomeEmail: skipping (missing recipient email or memberCode)',
+      )
+      return
+    }
+
+    const apiKey = process.env.RESEND_API_KEY
+    const fromAddress = process.env.TRANSACTION_MAIL_FROM
+
+    if (!apiKey || !fromAddress) {
+      logger.error(
+        'sendMemberWelcomeEmail: RESEND_API_KEY or TRANSACTION_MAIL_FROM missing at runtime.',
+      )
+      await markEmailFailure(memberId, 'Mail env not configured on function.')
+      return
+    }
+
+    const fullNameEsc = escapeHtml(fullNameRaw || 'member')
+    const memberCodeEsc = escapeHtml(memberCode)
+    const programEsc = escapeHtml(PROGRAM_DISPLAY_NAME)
+
+    const subject = `Your ${PROGRAM_DISPLAY_NAME} member code`
+    const text = [
+      `Hello ${fullNameRaw || 'member'},`,
+      '',
+      `Your organization profile under ${PROGRAM_DISPLAY_NAME} has been recorded.`,
+      `Member code (use it in the pass app): ${memberCode}`,
+      '',
+      'If you did not request this registration, ignore this note.',
+    ].join('\n')
+
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8" /></head>
+<body style="font-family:Segoe UI,system-ui,sans-serif;line-height:1.5;color:#111">
+  <p>Hello ${fullNameEsc},</p>
+  <p>This message confirms registration for your organization booth contact under ${programEsc}.</p>
+  <p><strong>Member code:</strong></p>
+  <pre style="font-size:14px;background:#efefef;padding:12px 14px;display:inline-block;border-radius:10px">${memberCodeEsc}</pre>
+  <p>Enter that code inside the attendee app to reopen your QR pass anytime.</p>
+  <hr style="border:none;border-top:1px solid #ccc;margin:24px 0" />
+  <p style="font-size:12px;color:#666">If this was not requested, disregard this mail.</p>
+</body>
+</html>`.trim()
+
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [toRaw],
+          subject,
+          html,
+          text,
+        }),
+      })
+
+      const bodyText = await response.text()
+      /** @type {Record<string, unknown>} */
+      let parsed = {}
+      try {
+        parsed = JSON.parse(bodyText)
+      } catch {
+        parsed = {}
+      }
+
+      if (!response.ok) {
+        const hint =
+          typeof parsed.message === 'string'
+            ? parsed.message
+            : bodyText.slice(0, 200)
+        logger.error(`Resend error ${response.status}`, bodyText)
+        await markEmailFailure(memberId, `Resend ${response.status}: ${hint}`)
+        return
+      }
+
+      const resendId = typeof parsed.id === 'string' ? parsed.id : null
+      logger.info(
+        `Resend accepted memberId=${memberId} to=${toRaw} resendId=${resendId ?? 'none'}`,
+      )
+
+      await getFirestore()
+        .collection('members')
+        .doc(memberId)
+        .set(
+          {
+            welcomeEmailSentAt: FieldValue.serverTimestamp(),
+            welcomeEmailTo: toRaw.toLowerCase(),
+            ...(resendId ? { welcomeEmailResendId: resendId } : {}),
+          },
+          { merge: true },
+        )
+
+      logger.info(
+        `${memberId}: Resend queued (open resend.com → Emails; without a verified domain, only allowed test recipients receive mail).`,
+      )
+    } catch (error) {
+      logger.error('sendMemberWelcomeEmail failed', error)
+      await markEmailFailure(memberId, error.message || 'unknown error')
+    }
+  },
+)
+
+async function markEmailFailure(memberId, hint) {
+  ensureAdmin()
+
+  try {
+    await getFirestore()
+      .collection('members')
+      .doc(memberId)
+      .set(
+        {
+          welcomeEmailFailedAt: FieldValue.serverTimestamp(),
+          welcomeEmailError: String(hint).slice(0, 500),
+        },
+        { merge: true },
+      )
+  } catch (error) {
+    logger.error(`Unable to annotate member ${memberId}`, error)
+  }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+}

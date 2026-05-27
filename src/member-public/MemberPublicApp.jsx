@@ -1,0 +1,124 @@
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+
+import { CircuitFrame } from '../components/CircuitFrame.jsx'
+import {
+  BRAND_ENGINEERING_LOCKUP,
+  BRAND_MISSION_TAGLINE,
+  BRAND_PRIMARY_NAME,
+  EXPO_CONNECT_LINE,
+  EXPO_SHORT_LABEL,
+} from '../constants/companyDefaults.js'
+import { findMemberBySlug } from '../services/membersRepo.js'
+import { BottomTabBar } from './components/BottomTabBar.jsx'
+import { ContactTab } from './tabs/ContactTab.jsx'
+import { CategoriesTab } from './tabs/CategoriesTab.jsx'
+import { ScheduleTab } from './tabs/ScheduleTab.jsx'
+import { CompetitionTab } from './tabs/CompetitionTab.jsx'
+
+import '../App.css'
+import '../styles/forms.css'
+import './MemberPublicApp.css'
+
+const TAB = Object.freeze({
+  contact: 'contact',
+  categories: 'categories',
+  schedule: 'schedule',
+  competition: 'competition',
+})
+
+export function MemberPublicApp() {
+  const { memberSlug = '' } = useParams()
+  const [member, setMember] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [activeTab, setActiveTab] = useState(TAB.contact)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      setLoading(true)
+      setError(null)
+      setMember(null)
+
+      try {
+        const record = await findMemberBySlug(memberSlug)
+        if (cancelled) return
+
+        if (!record) {
+          setError('This member profile could not be found.')
+          return
+        }
+
+        setMember(record)
+      } catch (loadError) {
+        if (cancelled) return
+        const message =
+          typeof loadError?.message === 'string'
+            ? loadError.message
+            : 'Unable to load this profile right now.'
+        setError(message)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [memberSlug])
+
+  function renderContent() {
+    if (loading) {
+      return (
+        <div className="member-public__state">
+          <div className="member-public__spinner" aria-hidden />
+          <p className="member-public__state-label">Loading profile…</p>
+        </div>
+      )
+    }
+
+    if (error || !member) {
+      return (
+        <div className="member-public__state member-public__state--error">
+          <p className="member-public__state-label">{error ?? 'Profile unavailable.'}</p>
+        </div>
+      )
+    }
+
+    if (activeTab === TAB.contact) return <ContactTab member={member} />
+    if (activeTab === TAB.categories) return <CategoriesTab />
+    if (activeTab === TAB.schedule) return <ScheduleTab />
+    return <CompetitionTab />
+  }
+
+  return (
+    <div className="app member-public-app">
+      <header className="app-header">
+        <div className="app-header__row">
+          <div className="app-header__brand-stack">
+            <strong className="app-header__org">{BRAND_PRIMARY_NAME}</strong>
+            <p className="app-header__lockup">{BRAND_ENGINEERING_LOCKUP}</p>
+          </div>
+        </div>
+      </header>
+
+      <CircuitFrame variant="accent">
+        <div className="member-public-screen">
+          <header className="member-public-screen__invite">
+              <p className="member-public-screen__welcome">{EXPO_SHORT_LABEL}</p>
+              <p className="member-public-screen__connect">{EXPO_CONNECT_LINE}</p>
+              <div className="member-public-screen__shine" aria-hidden />
+              <p className="member-public-screen__mission">{BRAND_MISSION_TAGLINE}</p>
+            </header>
+
+          <main className="member-public-screen__main">{renderContent()}</main>
+
+          <BottomTabBar activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
+      </CircuitFrame>
+    </div>
+  )
+}
