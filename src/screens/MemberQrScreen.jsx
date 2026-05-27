@@ -43,8 +43,8 @@ export function MemberQrScreen({
               level="Q"
               title="WWISE member profile QR"
               includeMargin={false}
-              bgColor="#03070c"
-              fgColor="#00f5be"
+              bgColor="#050913"
+              fgColor="#5bbce4"
               className="qr-card__qr"
             />
           </div>

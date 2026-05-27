@@ -62,7 +62,7 @@ textarea.text-input {
   border-color: var(--circuit-trace-strong);
   box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.28),
-    0 0 0 2px rgba(0, 255, 208, 0.18);
+    0 0 0 2px rgba(43, 127, 212, 0.22);
 }
 
 .text-input:disabled {
@@ -91,28 +91,28 @@ textarea.text-input {
   width: 100%;
   padding: 0.82rem 1rem;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 200, 80, 0.35);
+  border: 1px solid rgba(91, 188, 228, 0.35);
   background: linear-gradient(
     168deg,
-    var(--ind-cta) 0%,
-    #00caa5 72%,
-    #00f0cf 100%
+    var(--brand-blue-mid) 0%,
+    var(--brand-blue-dark) 72%,
+    var(--brand-blue-light) 100%
   );
   color: var(--ind-cta-text);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 0 0 1px rgba(0, 245, 200, 0.22),
+    0 0 0 1px rgba(43, 127, 212, 0.22),
     0 6px 22px rgba(0, 0, 0, 0.35),
-    0 0 28px rgba(240, 180, 41, 0.12);
+    0 0 28px rgba(227, 6, 19, 0.1);
   cursor: pointer;
 }
 
 .primary-btn:hover:not(:disabled) {
   background: linear-gradient(
     168deg,
-    var(--ind-cta-hover) 0%,
-    #06e4c8 72%,
-    #12ffd8 100%
+    var(--brand-blue-light) 0%,
+    var(--brand-blue-mid) 72%,
+    var(--brand-blue-dark) 100%
   );
 }
 
@@ -208,7 +208,7 @@ textarea.text-input {
   text-transform: uppercase;
   padding: 0.2rem 0.48rem;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(251, 113, 133, 0.45);
-  color: #fda4af;
+  border: 1px solid rgba(227, 6, 19, 0.45);
+  color: var(--brand-red);
   font-weight: 700;
 }
