@@ -6,7 +6,6 @@ import { auth } from './firebase.js'
 import { Toast } from './components/Toast.jsx'
 import {
   BRAND_ENGINEERING_LOCKUP,
-  BRAND_PRIMARY_NAME,
   TOAST_DUPLICATE_CONTACT,
   buildRegistrationWithEmailToastMessage,
 } from './constants/companyDefaults.js'
@@ -21,6 +20,7 @@ import { buildMemberQrPayload } from './services/memberQr.js'
 import { saveQrCodeRecord } from './services/qrCodesRepo.js'
 import { signInMemberSession } from './services/sessionAuth.js'
 import { buildProfileSlug } from './utils/memberSlug.js'
+import logo from './assets/logo.png'
 import './styles/forms.css'
 import './App.css'
 import { CreateMemberScreen } from './screens/CreateMemberScreen.jsx'
@@ -272,9 +272,7 @@ export function ExpoApp() {
       <header className="app-header">
         <div className="app-header__row">
           <div className="app-header__brand-stack">
-            <strong className="app-header__org">{BRAND_PRIMARY_NAME}</strong>
-            <div className="qr-screen__shine" aria-hidden />
-            <p className="app-header__lockup">{BRAND_ENGINEERING_LOCKUP}</p>
+            <img className="app-header__logo" src={logo} alt="WWISE" />
           </div>
         </div>
       </header>

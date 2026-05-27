@@ -7,7 +7,6 @@ import {
   BRAND_ENGINEERING_LOCKUP,
   BRAND_ISO_STANDARDS_LINE,
   BRAND_MISSION_TAGLINE,
-  BRAND_PRIMARY_NAME,
   EXPO_CONNECT_LINE,
   EXPO_SHORT_LABEL,
   PLACEHOLDER_COMPANY_ADDRESS,
@@ -18,10 +17,12 @@ import {
   incrementAnonymousConnection,
   incrementKnownConnection,
 } from '../services/connectionsRepo.js'
+import { signInMemberSession } from '../services/sessionAuth.js'
 import { ContactTab } from './tabs/ContactTab.jsx'
 import { CategoriesTab } from './tabs/CategoriesTab.jsx'
 import { ScheduleTab } from './tabs/ScheduleTab.jsx'
 import { CompetitionTab } from './tabs/CompetitionTab.jsx'
+import logo from '../assets/logo.png'
 
 import '../App.css'
 import '../styles/forms.css'
@@ -90,6 +91,7 @@ export function MemberPublicApp() {
       setMember(null)
 
       try {
+        await signInMemberSession()
         const record = await findMemberBySlug(memberSlug)
         if (cancelled) return
 
@@ -269,8 +271,7 @@ export function MemberPublicApp() {
       <header className="app-header">
         <div className="app-header__row">
           <div className="app-header__brand-stack">
-            <strong className="app-header__org">{BRAND_PRIMARY_NAME}</strong>
-            <p className="app-header__lockup">{BRAND_ENGINEERING_LOCKUP}</p>
+            <img className="app-header__logo" src={logo} alt="WWISE" />
           </div>
           <button
             type="button"

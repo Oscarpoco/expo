@@ -19,30 +19,30 @@
   --radius-sm: 0;
   --radius-md: 0;
 
-  /* Industrial control room + expo floor (teal signal + amber safety accent) */
+  /* Brand palette tuned to logo (electric blue + deep navy + red accent) */
   --circuit-board-bg: #070b11;
-  --circuit-board-accent: #05080d;
-  --surface-muted: #0d131c;
-  --circuit-outline: #1e3440;
-  --circuit-outline-dim: #122428;
-  --circuit-trace-muted: rgba(0, 238, 200, 0.14);
-  --circuit-trace-strong: #00e8bc;
-  --circuit-signal-dash: rgba(0, 200, 255, 0.18);
+  --circuit-board-accent: #050913;
+  --surface-muted: #0d1727;
+  --circuit-outline: #1b355c;
+  --circuit-outline-dim: #10223f;
+  --circuit-trace-muted: rgba(71, 163, 255, 0.2);
+  --circuit-trace-strong: #2ea8ff;
+  --circuit-signal-dash: rgba(46, 168, 255, 0.22);
 
-  --signal-amber: #f0b429;
-  --signal-amber-bright: #ffc84a;
-  --signal-amber-dim: rgba(240, 180, 41, 0.14);
+  --signal-amber: #f93e3e;
+  --signal-amber-bright: #ff6161;
+  --signal-amber-dim: rgba(249, 62, 62, 0.16);
 
   --circuit-copper-fill: #e07a5f;
 
   --text-strong: #eef7f6;
-  --text-muted: #98b4b8;
-  --text-dim: #5c767a;
+  --text-muted: #9fb9d8;
+  --text-dim: #6f88ad;
 
   /* Tactical controls — high-contrast under bright expo lights */
-  --ind-cta: #00dcb4;
+  --ind-cta: #2b98ff;
   --ind-cta-text: #021014;
-  --ind-cta-hover: #05f0cf;
+  --ind-cta-hover: #59b9ff;
   --ind-alert: #ff4d7a;
 }
 
@@ -68,12 +68,12 @@ body {
   -webkit-font-smoothing: antialiased;
   background-color: var(--circuit-board-accent);
   background-image:
-    radial-gradient(ellipse 130% 90% at 50% -25%, rgba(0, 220, 180, 0.11), transparent 52%),
-    radial-gradient(ellipse 85% 70% at 105% 88%, rgba(240, 180, 41, 0.08), transparent 50%),
+    radial-gradient(ellipse 130% 90% at 50% -25%, rgba(46, 168, 255, 0.14), transparent 52%),
+    radial-gradient(ellipse 85% 70% at 105% 88%, rgba(249, 62, 62, 0.09), transparent 50%),
     linear-gradient(
       165deg,
-      #0c141c 0%,
-      #070b11 42%,
+      #0d1b30 0%,
+      #070d1b 42%,
       #04060a 100%
     );
 }

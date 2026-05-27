@@ -14,5 +14,19 @@ service cloud.firestore {
     match /qrCodes/{qrId} {
       allow read, write: if true;
     }
+
+    // Public profile: connect form + connection stats (QR scan visitors)
+    match /connections/{docId} {
+      allow read, write: if true;
+    }
+
+    match /memberConnectionStats/{memberId} {
+      allow read, write: if true;
+    }
+
+    // Competition winner entries
+    match /winners/{docId} {
+      allow read, write: if true;
+    }
   }
 }
