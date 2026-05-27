@@ -1,3 +1,4 @@
+import { MILESTONE_IDS, markCompetitionMilestone } from '../services/competitionProgress.js'
 import './PlaceholderTab.css'
 
 export function ScheduleTab() {
@@ -18,6 +19,9 @@ export function ScheduleTab() {
             href={schedulePdfPath}
             download="training.pdf"
             aria-label="Download training PDF"
+            onClick={() =>
+              markCompetitionMilestone(MILESTONE_IDS.downloadTraining)
+            }
           >
             Download PDF
           </a>

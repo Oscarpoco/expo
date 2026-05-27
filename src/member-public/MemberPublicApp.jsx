@@ -135,7 +135,7 @@ export function MemberPublicApp() {
     if (activeTab === TAB.contact) return <ContactTab member={member} />
     if (activeTab === TAB.categories) return <CategoriesTab />
     if (activeTab === TAB.schedule) return <ScheduleTab />
-    return <CompetitionTab />
+    return <CompetitionTab member={member} />
   }
 
   const menuAddress = resolveMenuAddress(member?.companyAddress)

@@ -12,6 +12,7 @@ import {
 } from 'react-icons/md'
 
 import { BRAND_PRIMARY_NAME } from '../../constants/companyDefaults.js'
+import { MILESTONE_IDS, markCompetitionMilestone } from '../services/competitionProgress.js'
 import { buildMemberProfilePath } from '../../utils/memberSlug.js'
 import { getPublicAppOrigin } from '../../utils/publicAppUrl.js'
 import { buildMemberVCard, downloadVCard } from '../../utils/vCard.js'
@@ -132,6 +133,7 @@ export function ContactTab({ member }) {
     })
 
     downloadVCard(vCard, member.profileSlug || member.fullName || 'contact')
+    markCompetitionMilestone(MILESTONE_IDS.saveContact)
     setSaveHint('Contact file ready — open the download to add to your phone.')
     window.setTimeout(() => setSaveHint(''), 4500)
   }, [member, profileUrl])
