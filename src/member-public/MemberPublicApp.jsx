@@ -31,7 +31,7 @@ const TAB = Object.freeze({
 
 const TAB_MENU = [
   { id: TAB.contact, label: 'Contact' },
-  { id: TAB.categories, label: 'Categories' },
+  { id: TAB.categories, label: 'Catalogues' },
   { id: TAB.schedule, label: 'Schedule' },
   { id: TAB.competition, label: 'Competition' },
 ]

@@ -9,7 +9,7 @@ import './BottomTabBar.css'
 
 const TABS = [
   { id: 'contact', label: 'Contact', Icon: MdOutlinePerson },
-  { id: 'categories', label: 'Categories', Icon: MdGridView },
+  { id: 'categories', label: 'Catalogues', Icon: MdGridView },
   { id: 'schedule', label: 'Schedule', Icon: MdOutlineCalendarMonth },
   { id: 'competition', label: 'Competition', Icon: MdEmojiEvents },
 ]

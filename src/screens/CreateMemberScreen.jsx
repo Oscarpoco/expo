@@ -53,7 +53,6 @@ const BIO_MAX_CHARS = 720
  * @property {string} email
  * @property {string} website
  * @property {string} linkedInUrl
- * @property {string} whatsAppLink
  * @property {string} companyAddress
  * @property {string} bio
  */
@@ -69,7 +68,6 @@ function buildDraft(code) {
     email: '',
     website: PLACEHOLDER_COMPANY_WEBSITE,
     linkedInUrl: '',
-    whatsAppLink: '',
     companyAddress: PLACEHOLDER_COMPANY_ADDRESS,
   }
 }
@@ -118,7 +116,6 @@ export function CreateMemberScreen({
       email: form.email.trim(),
       website: form.website.trim(),
       linkedInUrl: form.linkedInUrl.trim(),
-      whatsAppLink: form.whatsAppLink.trim(),
       companyAddress: form.companyAddress.trim(),
       bio: bioTrimmed,
       profilePhotoFile,
@@ -130,8 +127,7 @@ export function CreateMemberScreen({
       !payload.roleTitle ||
       !payload.phoneNumber ||
       !payload.email ||
-      !payload.linkedInUrl ||
-      !payload.whatsAppLink
+      !payload.linkedInUrl
     ) {
       return
     }
@@ -146,7 +142,6 @@ export function CreateMemberScreen({
     form.phoneNumber.trim() &&
     form.email.trim() &&
     form.linkedInUrl.trim() &&
-    form.whatsAppLink.trim() &&
     (form.bio || '').trim().length <= BIO_MAX_CHARS
 
   return (
@@ -351,22 +346,6 @@ export function CreateMemberScreen({
               required
             />
 
-            <label className="field-label" htmlFor="fld-whatsapp">
-              <MdOutlinePhone aria-hidden className="field-label__icon" />
-              WhatsApp link
-            </label>
-            <input
-              id="fld-whatsapp"
-              type="url"
-              inputMode="url"
-              autoComplete="url"
-              className="text-input text-input--tall"
-              value={form.whatsAppLink}
-              onChange={(e) => patchField('whatsAppLink', e.target.value)}
-              disabled={busy}
-              placeholder="https://wa.me/14955550123"
-              required
-            />
           </div>
 
           {submitError ? <p className="form-error member-form-shell__submit-error">{submitError}</p> : null}

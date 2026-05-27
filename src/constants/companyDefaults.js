@@ -90,7 +90,7 @@ export const PLACEHOLDER_COMPANY_NAME = BRAND_PRIMARY_NAME
 export const PLACEHOLDER_COMPANY_WEBSITE = 'https://wwise.co.za'
 
 export const PLACEHOLDER_COMPANY_ADDRESS =
-  'Head office address — street, city, country (update for your organisation)'
+  '254 Hall Street, Westend Office Park, Building 2, Floor 2, Centurion, Pretoria, South Africa'
 
 /** ISO management systems — shown in public profile navigation. */
 export const BRAND_ISO_STANDARDS_LINE =
