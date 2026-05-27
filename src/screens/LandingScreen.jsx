@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { MdArrowForwardIos, MdKeyboard } from 'react-icons/md'
 
 import {
-  BRAND_MISSION_TAGLINE,
   LANDING_BADGE,
   LANDING_CTA_VERIFY,
   LANDING_LEAD,

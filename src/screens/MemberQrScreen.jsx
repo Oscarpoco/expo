@@ -2,8 +2,6 @@ import { QRCodeSVG } from 'qrcode.react'
 import { MdRefresh } from 'react-icons/md'
 
 import {
-  BRAND_MISSION_TAGLINE,
-  EXPO_BRAND_INTRO,
   EXPO_CONNECT_LINE,
   EXPO_SCAN_PROMPT,
   EXPO_WELCOME_TITLE,

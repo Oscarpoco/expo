@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { MdOutlineLocationOn } from 'react-icons/md'
 
 import { CircuitFrame } from '../components/CircuitFrame.jsx'
 import {
@@ -10,7 +11,6 @@ import {
   EXPO_SHORT_LABEL,
 } from '../constants/companyDefaults.js'
 import { findMemberBySlug } from '../services/membersRepo.js'
-import { BottomTabBar } from './components/BottomTabBar.jsx'
 import { ContactTab } from './tabs/ContactTab.jsx'
 import { CategoriesTab } from './tabs/CategoriesTab.jsx'
 import { ScheduleTab } from './tabs/ScheduleTab.jsx'
@@ -27,12 +27,20 @@ const TAB = Object.freeze({
   competition: 'competition',
 })
 
+const TAB_MENU = [
+  { id: TAB.contact, label: 'Contact' },
+  { id: TAB.categories, label: 'Categories' },
+  { id: TAB.schedule, label: 'Schedule' },
+  { id: TAB.competition, label: 'Competition' },
+]
+
 export function MemberPublicApp() {
   const { memberSlug = '' } = useParams()
   const [member, setMember] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState(TAB.contact)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -102,21 +110,63 @@ export function MemberPublicApp() {
             <strong className="app-header__org">{BRAND_PRIMARY_NAME}</strong>
             <p className="app-header__lockup">{BRAND_ENGINEERING_LOCKUP}</p>
           </div>
+          <button
+            type="button"
+            className="member-public-menu-btn"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-controls="member-public-menu"
+            aria-label="Toggle profile menu"
+          >
+            <span className="member-public-menu-btn__line member-public-menu-btn__line--short" aria-hidden />
+            <span className="member-public-menu-btn__line member-public-menu-btn__line--medium" aria-hidden />
+            <span className="member-public-menu-btn__line member-public-menu-btn__line--long" aria-hidden />
+          </button>
         </div>
       </header>
 
       <CircuitFrame variant="accent">
         <div className="member-public-screen">
+          {menuOpen ? (
+            <aside id="member-public-menu" className="member-public-menu" aria-label="Profile navigation">
+              <p className="member-public-menu__title">Navigate</p>
+              <div className="member-public-menu__tabs">
+                {TAB_MENU.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    className={`member-public-menu__tab${activeTab === tab.id ? ' member-public-menu__tab--active' : ''}`}
+                    onClick={() => {
+                      setActiveTab(tab.id)
+                      setMenuOpen(false)
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {member?.companyAddress ? (
+                <p className="member-public-menu__address">
+                  <MdOutlineLocationOn aria-hidden />
+                  {member.companyAddress}
+                </p>
+              ) : null}
+
+              <button type="button" className="primary-btn member-public-menu__subscribe">
+                Subscribe
+              </button>
+            </aside>
+          ) : null}
+
           <header className="member-public-screen__invite">
-              <p className="member-public-screen__welcome">{EXPO_SHORT_LABEL}</p>
-              <p className="member-public-screen__connect">{EXPO_CONNECT_LINE}</p>
-              <div className="member-public-screen__shine" aria-hidden />
-              <p className="member-public-screen__mission">{BRAND_MISSION_TAGLINE}</p>
-            </header>
+            <p className="member-public-screen__welcome">{EXPO_SHORT_LABEL}</p>
+            <p className="member-public-screen__connect">{EXPO_CONNECT_LINE}</p>
+            <div className="member-public-screen__shine" aria-hidden />
+            <p className="member-public-screen__mission">{BRAND_MISSION_TAGLINE}</p>
+          </header>
 
           <main className="member-public-screen__main">{renderContent()}</main>
-
-          <BottomTabBar activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
       </CircuitFrame>
     </div>
