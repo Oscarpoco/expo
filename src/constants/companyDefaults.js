@@ -38,7 +38,7 @@ export const LANDING_TITLE = 'Member sign-in'
 export const LANDING_LEAD =
   `Enter the member code on your credential. We match it to the ${BRAND_PRIMARY_NAME} member directory and open your organisation profile.`
 
-export const LANDING_MEMBER_CODE_PLACEHOLDER = 'As printed on your member credential'
+export const LANDING_MEMBER_CODE_PLACEHOLDER = 'Enter your member access code'
 
 export const LANDING_CTA_VERIFY = 'Sign in'
 

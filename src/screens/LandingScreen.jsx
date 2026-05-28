@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MdArrowForwardIos, MdKeyboard } from 'react-icons/md'
+import { MdArrowForwardIos, MdKeyboard, MdPersonAddAlt1 } from 'react-icons/md'
 
 import {
   LANDING_BADGE,
@@ -57,14 +57,20 @@ export function LandingScreen({ onVerify, onRegister, busy, submitError }) {
           </button>
 
           {onRegister ? (
-            <button
-              type="button"
-              className="ghost-btn landing__register"
-              onClick={onRegister}
-              disabled={busy}
-            >
-              Register a new member
-            </button>
+            <>
+              <div className="landing__divider" aria-hidden>
+                <span>or</span>
+              </div>
+              <button
+                type="button"
+                className="landing__register"
+                onClick={onRegister}
+                disabled={busy}
+              >
+                <MdPersonAddAlt1 aria-hidden />
+                Register as a new member
+              </button>
+            </>
           ) : null}
         </form>
       </div>
