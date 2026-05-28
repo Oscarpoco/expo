@@ -145,6 +145,10 @@ export function CompetitionTab({ member }) {
         'Entry submitted — a confirmation email is on its way. Good luck!',
       )
       setEmail('')
+      window.setTimeout(() => {
+        setPopupOpen(false)
+        setSuccess('')
+      }, 1500)
     } catch (submitError) {
       const message =
         typeof submitError?.message === 'string'
