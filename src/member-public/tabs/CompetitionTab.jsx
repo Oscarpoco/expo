@@ -34,7 +34,6 @@ export function CompetitionTab({ member }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const [popupOpen, setPopupOpen] = useState(true)
 
   useEffect(() => {
     return subscribeCompetitionProgress((next) => setProgress(next))
@@ -113,7 +112,7 @@ export function CompetitionTab({ member }) {
     (item) => progress.milestones[item.id],
   ).length
   const allDone = completedCount === milestones.length
-  const showPopup = allDone && popupOpen
+  const hasEntered = Boolean(progress.entrySubmitted)
 
   async function handleSubmitWinner(event) {
     event.preventDefault()
@@ -145,10 +144,6 @@ export function CompetitionTab({ member }) {
         'Entry submitted — a confirmation email is on its way. Good luck!',
       )
       setEmail('')
-      window.setTimeout(() => {
-        setPopupOpen(false)
-        setSuccess('')
-      }, 1500)
     } catch (submitError) {
       const message =
         typeof submitError?.message === 'string'
@@ -208,72 +203,53 @@ export function CompetitionTab({ member }) {
         Progress: {completedCount}/3 milestones completed
       </p>
 
-      {allDone && !popupOpen ? (
-        <button
-          type="button"
-          className="primary-btn"
-          onClick={() => {
-            setError('')
-            setSuccess('')
-            setPopupOpen(true)
-          }}
-        >
-          Enter the competition
-        </button>
-      ) : null}
-
-      {showPopup ? (
-        <div className="competition-popup" role="dialog" aria-modal="true">
-          <div className="competition-popup__panel">
-            <button
-              type="button"
-              className="competition-popup__close"
-              onClick={() => setPopupOpen(false)}
-              aria-label="Close competition entry"
-            >
-              ✕
-            </button>
-            <h3>
-              Congratulations you have entered the competition to win prizes
-            </h3>
-            <p>
-              Submit your email below to complete your entry. One entry is
-              allowed per person.
-            </p>
-
-            <form
-              className="competition-popup__form"
-              onSubmit={handleSubmitWinner}
-            >
-              <label className="field-label" htmlFor="competition-email">
-                Email address
-              </label>
-              <input
-                id="competition-email"
-                className="text-input text-input--tall"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="name@company.com"
-                autoComplete="email"
-                required
-                disabled={busy}
-              />
-
-              {error ? <p className="form-error">{error}</p> : null}
-              {success ? (
-                <p className="competition-tab__success" role="status">
-                  {success}
-                </p>
-              ) : null}
-
-              <button type="submit" className="primary-btn" disabled={busy}>
-                {busy ? 'Submitting...' : 'Submit entry'}
-              </button>
-            </form>
-          </div>
+      {!allDone ? null : hasEntered ? (
+        <div className="competition-entry-card competition-entry-card--thanks">
+          <h3>Thank you for entering!</h3>
+          <p>
+            Your competition entry is confirmed and a confirmation email has
+            been sent. See you next time!
+          </p>
         </div>
-      ) : null}
+      ) : (
+        <div className="competition-entry-card">
+          <h3>
+            Congratulations you have entered the competition to win prizes
+          </h3>
+          <p>Submit your email below to complete your entry.</p>
+
+          <form
+            className="competition-entry-card__form"
+            onSubmit={handleSubmitWinner}
+          >
+            <label className="field-label" htmlFor="competition-email">
+              Email address
+            </label>
+            <input
+              id="competition-email"
+              className="text-input text-input--tall"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="name@company.com"
+              autoComplete="email"
+              required
+              disabled={busy}
+            />
+
+            {error ? <p className="form-error">{error}</p> : null}
+            {success ? (
+              <p className="competition-tab__success" role="status">
+                {success}
+              </p>
+            ) : null}
+
+            <button type="submit" className="primary-btn" disabled={busy}>
+              {busy ? 'Submitting...' : 'Submit entry'}
+            </button>
+          </form>
+        </div>
+      )}
     </section>
   )
 }

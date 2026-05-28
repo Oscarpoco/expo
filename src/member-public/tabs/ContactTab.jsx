@@ -232,7 +232,7 @@ export function ContactTab({ member }) {
           onClick={handleSaveContact}
         >
           <MdPersonAdd aria-hidden />
-          Save to phone
+          Save Contact
         </button>
         <button
           type="button"

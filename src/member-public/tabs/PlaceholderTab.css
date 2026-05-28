@@ -184,19 +184,8 @@
   gap: 0.5rem;
 }
 
-.competition-popup {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: grid;
-  place-items: center;
-  padding: 1rem;
-  background: rgba(3, 6, 10, 0.78);
-}
-
-.competition-popup__panel {
+.competition-entry-card {
   position: relative;
-  width: min(27rem, 100%);
   padding: 1rem;
   border: 1px solid var(--circuit-outline);
   border-radius: 18px;
@@ -204,13 +193,13 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
     0 16px 40px rgba(0, 0, 0, 0.45);
-  animation: competitionPopupIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: competitionEntryIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes competitionPopupIn {
+@keyframes competitionEntryIn {
   from {
     opacity: 0;
-    transform: translateY(22px) scale(0.94);
+    transform: translateY(16px) scale(0.97);
   }
   to {
     opacity: 1;
@@ -218,44 +207,15 @@
   }
 }
 
-.competition-popup {
-  animation: connectOverlayFallbackIn 0.24s ease both;
+.competition-entry-card--thanks {
+  border-color: rgba(43, 127, 212, 0.62);
+  box-shadow:
+    inset 0 0 0 1px rgba(91, 188, 228, 0.22),
+    0 16px 40px rgba(0, 0, 0, 0.45);
+  text-align: center;
 }
 
-@keyframes connectOverlayFallbackIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.competition-popup__close {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: 1px solid var(--circuit-outline);
-  border-radius: 10px;
-  background: rgba(43, 127, 212, 0.08);
-  color: var(--text-strong);
-  cursor: pointer;
-  transition:
-    border-color 0.18s ease,
-    color 0.18s ease;
-}
-
-.competition-popup__close:hover {
-  border-color: var(--circuit-trace-strong);
-  color: var(--circuit-trace-strong);
-}
-
-.competition-popup__panel h3 {
+.competition-entry-card h3 {
   margin: 0 0 0.55rem;
   font-family: var(--font-display);
   font-size: 0.96rem;
@@ -263,7 +223,7 @@
   color: var(--text-strong);
 }
 
-.competition-popup__panel p {
+.competition-entry-card p {
   margin: 0 0 0.7rem;
   font-family: var(--font-industrial);
   font-size: 0.81rem;
@@ -271,7 +231,11 @@
   color: var(--text-muted);
 }
 
-.competition-popup__form {
+.competition-entry-card--thanks p {
+  margin-bottom: 0;
+}
+
+.competition-entry-card__form {
   display: flex;
   flex-direction: column;
 }
