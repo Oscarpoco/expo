@@ -18,6 +18,8 @@ function defaultState() {
     entrySubmitted: false,
     winnerEmail: '',
     submittedAtIso: '',
+    // Per-person restriction: emails that already entered from this browser.
+    submittedEmails: [],
   }
 }
 
@@ -45,6 +47,9 @@ function readStored() {
         typeof parsed?.submittedAtIso === 'string'
           ? parsed.submittedAtIso
           : fallback.submittedAtIso,
+      submittedEmails: Array.isArray(parsed?.submittedEmails)
+        ? parsed.submittedEmails.filter((item) => typeof item === 'string')
+        : fallback.submittedEmails,
     }
   } catch {
     return defaultState()
@@ -112,13 +117,38 @@ export function markCompetitionMilestone(milestoneId) {
   return writeStored(updated)
 }
 
-export function markCompetitionEntrySubmitted(email) {
+function normaliseEmail(email) {
+  return (email || '').trim().toLowerCase()
+}
+
+/**
+ * Per-person check: has this exact email already entered from this browser?
+ * @param {string} email
+ * @returns {boolean}
+ */
+export function hasSubmittedEmail(email) {
+  const norm = normaliseEmail(email)
+  if (!norm) return false
   const current = getCompetitionProgress()
+  return (current.submittedEmails || []).includes(norm)
+}
+
+/**
+ * Records a competition entry against a specific email (one entry per person).
+ * Unlike the old per-browser flag, this lets different people enter from the
+ * same device while blocking the same email from entering twice.
+ * @param {string} email
+ */
+export function recordCompetitionEntry(email) {
+  const norm = normaliseEmail(email)
+  const current = getCompetitionProgress()
+  const list = current.submittedEmails || []
   const updated = {
     ...current,
     entrySubmitted: true,
     winnerEmail: (email || '').trim(),
     submittedAtIso: new Date().toISOString(),
+    submittedEmails: norm && !list.includes(norm) ? [...list, norm] : list,
   }
   return writeStored(updated)
 }

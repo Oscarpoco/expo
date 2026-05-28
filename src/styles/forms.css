@@ -83,6 +83,11 @@ textarea.text-input {
   text-transform: uppercase;
 }
 
+.primary-btn,
+.ghost-btn {
+  text-decoration: none;
+}
+
 .primary-btn {
   display: inline-flex;
   align-items: center;

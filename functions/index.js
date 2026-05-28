@@ -267,6 +267,99 @@ exports.sendConnectionConfirmationEmail = onDocumentCreated(
   },
 )
 
+/**
+ * Sends a confirmation email after a visitor submits a competition entry.
+ * Triggered when Firestore creates a `winners` document. Uses the SAME Resend
+ * transport, with a competition-specific message.
+ */
+exports.sendCompetitionEntryEmail = onDocumentCreated(
+  {
+    document: 'winners/{winnerId}',
+    region: 'africa-south1',
+  },
+  async (event) => {
+    ensureAdmin()
+
+    const winnerId = event.params.winnerId
+    const snapshot = event.data
+    if (!snapshot) {
+      logger.warn(`sendCompetitionEntryEmail: empty snapshot (${winnerId})`)
+      return
+    }
+
+    const row = snapshot.data() || {}
+    const toRaw = typeof row.email === 'string' ? row.email.trim() : ''
+
+    if (!toRaw) {
+      logger.info('sendCompetitionEntryEmail: skipping (missing recipient email)')
+      return
+    }
+
+    const apiKey = process.env.RESEND_API_KEY
+    const fromAddress = process.env.TRANSACTION_MAIL_FROM
+    if (!apiKey || !fromAddress) {
+      logger.error(
+        'sendCompetitionEntryEmail: RESEND_API_KEY or TRANSACTION_MAIL_FROM missing at runtime.',
+      )
+      return
+    }
+
+    const subject = 'Your SECUREX 2026 competition entry is confirmed'
+    const text = [
+      'Hi there,',
+      '',
+      'Your competition entry for SECUREX 2026 has been received. You completed all the milestones and are now in the draw to win prizes.',
+      '',
+      "We'll be in touch if you're a winner. Good luck!",
+      '',
+      'WWISE — Working together for a safe world',
+    ].join('\n')
+
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8" /></head>
+<body style="font-family:Segoe UI,system-ui,sans-serif;line-height:1.5;color:#111">
+  <p>Hi there,</p>
+  <p>Your competition entry for <strong>SECUREX 2026</strong> has been received. You completed all the milestones and are now in the draw to win prizes.</p>
+  <p>We'll be in touch if you're a winner. Good luck!</p>
+  <hr style="border:none;border-top:1px solid #ccc;margin:24px 0" />
+  <p style="font-size:12px;color:#666">If you did not enter this competition, you can safely ignore this message.</p>
+  <p style="font-size:12px;color:#666">WWISE — Working together for a safe world</p>
+</body>
+</html>`.trim()
+
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [toRaw],
+          subject,
+          html,
+          text,
+        }),
+      })
+
+      const bodyText = await response.text()
+      if (!response.ok) {
+        logger.error(`sendCompetitionEntryEmail Resend error ${response.status}`, bodyText)
+        return
+      }
+
+      logger.info(
+        `sendCompetitionEntryEmail: Resend accepted winnerId=${winnerId} to=${toRaw}`,
+      )
+    } catch (error) {
+      logger.error('sendCompetitionEntryEmail failed', error)
+    }
+  },
+)
+
 async function markEmailFailure(memberId, hint) {
   ensureAdmin()
 

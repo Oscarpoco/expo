@@ -1,16 +1,32 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import './PlaceholderTab.css'
 import {
   MILESTONE_IDS,
   getCompetitionProgress,
-  markCompetitionEntrySubmitted,
+  hasSubmittedEmail,
   markCompetitionMilestone,
+  recordCompetitionEntry,
   subscribeCompetitionProgress,
 } from '../services/competitionProgress.js'
 import { createWinnerEntry } from '../../services/winnersRepo.js'
+import { buildMemberProfilePath } from '../../utils/memberSlug.js'
+import { getPublicAppOrigin } from '../../utils/publicAppUrl.js'
+import { buildMemberVCard, downloadVCard } from '../../utils/vCard.js'
 
-const LINKEDIN_URL = 'https://www.linkedin.com/'
+const LINKEDIN_FALLBACK_URL = 'https://www.linkedin.com/'
+const SCHEDULE_PDF_PATH = '/training.pdf'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+/**
+ * @param {string} url
+ * @returns {string}
+ */
+function normalizeExternalUrl(url) {
+  const trimmed = (url || '').trim()
+  if (!trimmed) return ''
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  return `https://${trimmed}`
+}
 
 export function CompetitionTab({ member }) {
   const [progress, setProgress] = useState(() => getCompetitionProgress())
@@ -18,35 +34,86 @@ export function CompetitionTab({ member }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [popupOpen, setPopupOpen] = useState(true)
 
   useEffect(() => {
     return subscribeCompetitionProgress((next) => setProgress(next))
   }, [])
+
+  const profileUrl = useMemo(() => {
+    const origin = getPublicAppOrigin()
+    const path = buildMemberProfilePath(member?.profileSlug || member?.id || '')
+    return origin ? `${origin}${path}` : path
+  }, [member?.id, member?.profileSlug])
+
+  const handleSaveContact = useCallback(() => {
+    if (!member) return
+    const vCard = buildMemberVCard({
+      fullName: member.fullName,
+      roleTitle: member.roleTitle,
+      companyName: member.companyName,
+      phoneNumber: member.phoneNumber,
+      email: member.email,
+      website: member.website,
+      companyAddress: member.companyAddress,
+      bio: member.bio,
+      profileUrl,
+    })
+    downloadVCard(vCard, member.profileSlug || member.fullName || 'contact')
+    markCompetitionMilestone(MILESTONE_IDS.saveContact)
+  }, [member, profileUrl])
+
+  const handleDownloadSchedule = useCallback(() => {
+    const anchor = document.createElement('a')
+    anchor.href = SCHEDULE_PDF_PATH
+    anchor.download = 'training.pdf'
+    anchor.rel = 'noopener'
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
+    markCompetitionMilestone(MILESTONE_IDS.downloadTraining)
+  }, [])
+
+  const handleOpenLinkedIn = useCallback(() => {
+    const target =
+      normalizeExternalUrl(member?.linkedInUrl) || LINKEDIN_FALLBACK_URL
+    window.open(target, '_blank', 'noopener,noreferrer')
+    markCompetitionMilestone(MILESTONE_IDS.shareLinkedIn)
+  }, [member?.linkedInUrl])
 
   const milestones = useMemo(
     () => [
       {
         id: MILESTONE_IDS.saveContact,
         title: 'Save the Contact to your phone',
+        actionLabel: 'Save Contact',
+        doneLabel: 'Save Contact again',
+        onAction: handleSaveContact,
       },
       {
         id: MILESTONE_IDS.downloadTraining,
         title: 'Download the Training Schedule',
+        actionLabel: 'Download Schedule',
+        doneLabel: 'Download Schedule again',
+        onAction: handleDownloadSchedule,
       },
       {
         id: MILESTONE_IDS.shareLinkedIn,
-        title: 'Share any of our posts on LinkedIn',
+        title: 'Open our LinkedIn and engage',
+        actionLabel: 'Open LinkedIn',
+        doneLabel: 'Done',
+        onAction: handleOpenLinkedIn,
+        lockWhenDone: true,
       },
     ],
-    [],
+    [handleSaveContact, handleDownloadSchedule, handleOpenLinkedIn],
   )
 
   const completedCount = milestones.filter(
     (item) => progress.milestones[item.id],
   ).length
   const allDone = completedCount === milestones.length
-  const hasSubmitted = progress.entrySubmitted
-  const showPopup = allDone && !hasSubmitted
+  const showPopup = allDone && popupOpen
 
   async function handleSubmitWinner(event) {
     event.preventDefault()
@@ -59,8 +126,8 @@ export function CompetitionTab({ member }) {
       return
     }
 
-    if (progress.entrySubmitted) {
-      setError('This browser has already submitted a competition entry.')
+    if (hasSubmittedEmail(trimmedEmail)) {
+      setError('This email has already entered the competition.')
       return
     }
 
@@ -73,8 +140,10 @@ export function CompetitionTab({ member }) {
         memberSlug: member?.profileSlug || member?.id,
         milestones: progress.milestones,
       })
-      markCompetitionEntrySubmitted(trimmedEmail)
-      setSuccess('Entry submitted successfully. Good luck!')
+      recordCompetitionEntry(trimmedEmail)
+      setSuccess(
+        'Entry submitted — a confirmation email is on its way. Good luck!',
+      )
       setEmail('')
     } catch (submitError) {
       const message =
@@ -101,6 +170,7 @@ export function CompetitionTab({ member }) {
       <ol className="competition-tab__milestones">
         {milestones.map((item, index) => {
           const done = Boolean(progress.milestones[item.id])
+          const lockedDone = done && item.lockWhenDone
           return (
             <li
               key={item.id}
@@ -117,35 +187,14 @@ export function CompetitionTab({ member }) {
                 </p>
               </div>
 
-              {item.id === MILESTONE_IDS.shareLinkedIn ? (
-                <div className="competition-tab__actions">
-                  <a
-                    className="ghost-btn competition-tab__action-btn"
-                    href={LINKEDIN_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Open LinkedIn
-                  </a>
-                  <button
-                    type="button"
-                    className="primary-btn competition-tab__action-btn"
-                    onClick={() => markCompetitionMilestone(item.id)}
-                    disabled={done}
-                  >
-                    {done ? 'Done' : 'Mark as completed'}
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className="ghost-btn competition-tab__action-btn"
-                  onClick={() => markCompetitionMilestone(item.id)}
-                  disabled={done}
-                >
-                  {done ? 'Done' : 'Mark as completed'}
-                </button>
-              )}
+              <button
+                type="button"
+                className={`${done ? 'ghost-btn' : 'primary-btn'} competition-tab__action-btn`}
+                onClick={item.onAction}
+                disabled={lockedDone}
+              >
+                {done ? item.doneLabel : item.actionLabel}
+              </button>
             </li>
           )
         })}
@@ -155,22 +204,37 @@ export function CompetitionTab({ member }) {
         Progress: {completedCount}/3 milestones completed
       </p>
 
-      {hasSubmitted ? (
-        <p className="competition-tab__submitted">
-          This browser has already entered the competition with{' '}
-          {progress.winnerEmail || 'a submitted email'}.
-        </p>
+      {allDone && !popupOpen ? (
+        <button
+          type="button"
+          className="primary-btn"
+          onClick={() => {
+            setError('')
+            setSuccess('')
+            setPopupOpen(true)
+          }}
+        >
+          Enter the competition
+        </button>
       ) : null}
 
       {showPopup ? (
         <div className="competition-popup" role="dialog" aria-modal="true">
           <div className="competition-popup__panel">
+            <button
+              type="button"
+              className="competition-popup__close"
+              onClick={() => setPopupOpen(false)}
+              aria-label="Close competition entry"
+            >
+              ✕
+            </button>
             <h3>
               Congratulations you have entered the competition to win prizes
             </h3>
             <p>
               Submit your email below to complete your entry. One entry is
-              allowed per browser.
+              allowed per person.
             </p>
 
             <form
