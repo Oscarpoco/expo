@@ -156,6 +156,117 @@ exports.sendMemberWelcomeEmail = onDocumentCreated(
   },
 )
 
+/**
+ * Sends a confirmation email to a visitor after they submit the "Connect"
+ * form on a member's public profile. Triggered when Firestore creates a
+ * `connections` document. Uses the SAME Resend transport as the welcome
+ * email, but with a different message tailored to the connection.
+ */
+exports.sendConnectionConfirmationEmail = onDocumentCreated(
+  {
+    document: 'connections/{connectionId}',
+    region: 'africa-south1',
+  },
+  async (event) => {
+    ensureAdmin()
+
+    const connectionId = event.params.connectionId
+    const snapshot = event.data
+    if (!snapshot) {
+      logger.warn(`sendConnectionConfirmationEmail: empty snapshot (${connectionId})`)
+      return
+    }
+
+    const row = snapshot.data() || {}
+    const toRaw = typeof row.email === 'string' ? row.email.trim() : ''
+    const fullNameRaw = typeof row.fullName === 'string' ? row.fullName.trim() : ''
+    const memberNameRaw =
+      typeof row.memberName === 'string' ? row.memberName.trim() : ''
+    const companyNameRaw =
+      typeof row.companyName === 'string' ? row.companyName.trim() : ''
+
+    if (!toRaw) {
+      logger.info(
+        'sendConnectionConfirmationEmail: skipping (missing recipient email)',
+      )
+      return
+    }
+
+    const apiKey = process.env.RESEND_API_KEY
+    const fromAddress = process.env.TRANSACTION_MAIL_FROM
+    if (!apiKey || !fromAddress) {
+      logger.error(
+        'sendConnectionConfirmationEmail: RESEND_API_KEY or TRANSACTION_MAIL_FROM missing at runtime.',
+      )
+      return
+    }
+
+    const connectedWith = memberNameRaw || 'a WWISE member'
+    const greetingName = fullNameRaw || 'there'
+
+    const greetingEsc = escapeHtml(greetingName)
+    const connectedWithEsc = escapeHtml(connectedWith)
+    const companyEsc = escapeHtml(companyNameRaw)
+
+    const subject = `You're connected with ${connectedWith} — SECUREX 2026`
+    const text = [
+      `Hi ${greetingName},`,
+      '',
+      `Thanks for connecting at SECUREX 2026. Your contact details have been shared with ${connectedWith}, who may reach out to follow up with you.`,
+      companyNameRaw ? `Company on file: ${companyNameRaw}` : '',
+      '',
+      'If you did not request this, you can safely ignore this message.',
+      '',
+      'WWISE — Working together for a safe world',
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8" /></head>
+<body style="font-family:Segoe UI,system-ui,sans-serif;line-height:1.5;color:#111">
+  <p>Hi ${greetingEsc},</p>
+  <p>Thanks for connecting at <strong>SECUREX 2026</strong>. Your contact details have been shared with <strong>${connectedWithEsc}</strong>, who may reach out to follow up with you.</p>
+  ${companyNameRaw ? `<p><strong>Company on file:</strong> ${companyEsc}</p>` : ''}
+  <hr style="border:none;border-top:1px solid #ccc;margin:24px 0" />
+  <p style="font-size:12px;color:#666">If you did not request this, you can safely ignore this message.</p>
+  <p style="font-size:12px;color:#666">WWISE — Working together for a safe world</p>
+</body>
+</html>`.trim()
+
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [toRaw],
+          subject,
+          html,
+          text,
+        }),
+      })
+
+      const bodyText = await response.text()
+      if (!response.ok) {
+        logger.error(`sendConnectionConfirmationEmail Resend error ${response.status}`, bodyText)
+        return
+      }
+
+      logger.info(
+        `sendConnectionConfirmationEmail: Resend accepted connectionId=${connectionId} to=${toRaw}`,
+      )
+    } catch (error) {
+      logger.error('sendConnectionConfirmationEmail failed', error)
+    }
+  },
+)
+
 async function markEmailFailure(memberId, hint) {
   ensureAdmin()
 

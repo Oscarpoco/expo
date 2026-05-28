@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { MdClose, MdOutlineLocationOn } from 'react-icons/md'
 
 import { CircuitFrame } from '../components/CircuitFrame.jsx'
+import { Toast } from '../components/Toast.jsx'
 import {
   BRAND_ENGINEERING_LOCKUP,
   BRAND_ISO_STANDARDS_LINE,
@@ -70,8 +71,11 @@ export function MemberPublicApp() {
   const [activeTab, setActiveTab] = useState(TAB.contact)
   const [menuOpen, setMenuOpen] = useState(false)
   const [connectOpen, setConnectOpen] = useState(false)
+  const [connectClosing, setConnectClosing] = useState(false)
   const [connectBusy, setConnectBusy] = useState(false)
   const [connectError, setConnectError] = useState('')
+  /** @type {[null | { message: string, variant?: 'success' | 'error' | 'info' }, function]} */
+  const [toast, setToast] = useState(null)
   const [connectForm, setConnectForm] = useState({
     fullName: '',
     email: '',
@@ -81,6 +85,12 @@ export function MemberPublicApp() {
   })
 
   const closeMenu = useCallback(() => setMenuOpen(false), [])
+
+  useEffect(() => {
+    if (!toast) return undefined
+    const id = window.setTimeout(() => setToast(null), 5200)
+    return () => window.clearTimeout(id)
+  }, [toast])
 
   useEffect(() => {
     let cancelled = false
@@ -132,13 +142,32 @@ export function MemberPublicApp() {
     }
   }, [memberSlug])
 
+  const setConnectField = useCallback((key, value) => {
+    setConnectForm((prev) => ({ ...prev, [key]: value }))
+  }, [])
+
+  const openConnectModal = useCallback(() => {
+    setConnectError('')
+    setConnectClosing(false)
+    setConnectOpen(true)
+  }, [])
+
+  const closeConnectModal = useCallback(() => {
+    setConnectError('')
+    setConnectClosing(true)
+    window.setTimeout(() => {
+      setConnectOpen(false)
+      setConnectClosing(false)
+    }, 230)
+  }, [])
+
   useEffect(() => {
     if (!menuOpen && !connectOpen) return undefined
 
     const onKeyDown = (event) => {
       if (event.key !== 'Escape') return
       if (connectOpen) {
-        setConnectOpen(false)
+        closeConnectModal()
         return
       }
       closeMenu()
@@ -151,21 +180,7 @@ export function MemberPublicApp() {
       document.body.style.overflow = ''
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [menuOpen, connectOpen, closeMenu])
-
-  const setConnectField = useCallback((key, value) => {
-    setConnectForm((prev) => ({ ...prev, [key]: value }))
-  }, [])
-
-  const openConnectModal = useCallback(() => {
-    setConnectError('')
-    setConnectOpen(true)
-  }, [])
-
-  const closeConnectModal = useCallback(() => {
-    setConnectError('')
-    setConnectOpen(false)
-  }, [])
+  }, [menuOpen, connectOpen, closeMenu, closeConnectModal])
 
   const submitConnection = useCallback(
     async (event) => {
@@ -213,6 +228,7 @@ export function MemberPublicApp() {
           window.localStorage.setItem(knownKey, '1')
         }
 
+        const savedEmail = payload.email
         setConnectForm({
           fullName: '',
           email: '',
@@ -220,7 +236,11 @@ export function MemberPublicApp() {
           companyName: '',
           areaOfInterest: '',
         })
-        setConnectOpen(false)
+        closeConnectModal()
+        setToast({
+          message: `Contact saved — a confirmation email is on its way to ${savedEmail}.`,
+          variant: 'success',
+        })
       } catch (submitError) {
         const message =
           typeof submitError?.message === 'string'
@@ -357,8 +377,13 @@ export function MemberPublicApp() {
           </div>
       </aside>
 
-      {connectOpen ? (
-        <div className="member-connect-modal" role="dialog" aria-modal="true" aria-label="Connect form">
+      {connectOpen || connectClosing ? (
+        <div
+          className={`member-connect-modal${connectClosing ? ' is-closing' : ''}`}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Connect form"
+        >
           <div className="member-connect-modal__panel">
             <div className="member-connect-modal__head">
               <h3>Connect</h3>
@@ -477,6 +502,14 @@ export function MemberPublicApp() {
           </main>
         </div>
       </CircuitFrame>
+
+      {toast ? (
+        <Toast
+          message={toast.message}
+          variant={toast.variant}
+          onDismiss={() => setToast(null)}
+        />
+      ) : null}
     </div>
   )
 }
