@@ -4,7 +4,7 @@
       "source": "functions",
       "codebase": "default",
       "ignore": ["node_modules", ".git", "firebase-debug.log", "firebase-debug.*.log"],
-      "predeploy": ["node sync-env-from-root.js"]
+      "predeploy": ["node functions/sync-env-from-root.js"]
     }
   ],
   "firestore": {

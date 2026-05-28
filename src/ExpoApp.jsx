@@ -227,6 +227,7 @@ export function ExpoApp() {
     body = (
       <LandingScreen
         onVerify={verifyMemberCode}
+        onRegister={proposeRegistration}
         busy={busy}
         submitError={lookupError}
       />

@@ -12,7 +12,7 @@ import { CircuitFrame } from '../components/CircuitFrame.jsx'
 
 import './LandingScreen.css'
 
-export function LandingScreen({ onVerify, busy, submitError }) {
+export function LandingScreen({ onVerify, onRegister, busy, submitError }) {
   const [code, setCode] = useState('')
 
   async function handleSubmit(e) {
@@ -55,6 +55,17 @@ export function LandingScreen({ onVerify, busy, submitError }) {
             {busy ? 'Signing in…' : LANDING_CTA_VERIFY}
             {!busy ? <MdArrowForwardIos aria-hidden /> : null}
           </button>
+
+          {onRegister ? (
+            <button
+              type="button"
+              className="ghost-btn landing__register"
+              onClick={onRegister}
+              disabled={busy}
+            >
+              Register a new member
+            </button>
+          ) : null}
         </form>
       </div>
     </CircuitFrame>

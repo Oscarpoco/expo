@@ -96,3 +96,9 @@
 .landing__cta {
   margin-top: 1.05rem;
 }
+
+.landing__register {
+  margin-top: 0.7rem;
+  width: 100%;
+  justify-content: center;
+}
