@@ -57,7 +57,7 @@ export function CategoriesTab() {
                 <path
                   id={`ring-${id}`}
                   fill="none"
-                  d="M 100,100 m -84,0 a 84,84 0 1,0 168,0 a 84,84 0 1,0 -168,0"
+                  d="M 100,100 m -88,0 a 88,88 0 1,0 176,0 a 88,88 0 1,0 -176,0"
                 />
               </defs>
               <text textAnchor="middle">
