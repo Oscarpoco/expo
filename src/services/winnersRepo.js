@@ -1,4 +1,11 @@
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import {
+  addDoc,
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+} from 'firebase/firestore'
 
 import { db } from '../firebase.js'
 
@@ -6,6 +13,21 @@ export const WINNERS_COLLECTION = 'winners'
 
 function normalizeEmail(email) {
   return (email || '').trim().toLowerCase()
+}
+
+/**
+ * @returns {Promise<Array<{ id: string, email: string, memberId?: string, memberSlug?: string, createdAt?: import('firebase/firestore').Timestamp }>>}
+ */
+export async function listWinnerEntries() {
+  const winnersQuery = query(
+    collection(db, WINNERS_COLLECTION),
+    orderBy('createdAt', 'desc'),
+  )
+  const snap = await getDocs(winnersQuery)
+  return snap.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data(),
+  }))
 }
 
 /**
