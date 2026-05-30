@@ -41,6 +41,20 @@ const SERVICES = [
   },
 ]
 
+/**
+ * Scales the curved label font down for longer names so they fit fully
+ * around the ring without overlapping themselves.
+ * @param {string} label
+ * @returns {number} font size in SVG user units
+ */
+function ringFontSize(label) {
+  const n = label.length
+  if (n > 46) return 10.5
+  if (n > 34) return 12
+  if (n > 24) return 13
+  return 14
+}
+
 export function CategoriesTab() {
   return (
     <section className="catalogue-tab">
@@ -60,7 +74,10 @@ export function CategoriesTab() {
                   d="M 100,100 m -84,0 a 84,84 0 1,0 168,0 a 84,84 0 1,0 -168,0"
                 />
               </defs>
-              <text textAnchor="middle">
+              <text
+                textAnchor="middle"
+                style={{ fontSize: `${ringFontSize(label)}px` }}
+              >
                 <textPath href={`#ring-${id}`} startOffset="25%">
                   {label}
                 </textPath>
