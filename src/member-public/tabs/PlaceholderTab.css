@@ -215,9 +215,9 @@
 .service-badge__ring text {
   fill: var(--circuit-trace-strong);
   font-family: var(--font-industrial);
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
 }
 
@@ -230,10 +230,7 @@
   height: 6.2rem;
   border-radius: 50%;
   color: var(--brand-red);
-  background: linear-gradient(160deg, #ffffff 0%, #e8eef6 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 4px 14px rgba(0, 0, 0, 0.4);
+  background: transparent;
 }
 
 .service-badge__icon svg {
