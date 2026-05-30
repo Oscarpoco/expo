@@ -1,5 +1,4 @@
 import { QRCodeSVG } from 'qrcode.react'
-import { MdRefresh } from 'react-icons/md'
 
 import {
   EXPO_CONNECT_LINE,
@@ -16,6 +15,7 @@ export function MemberQrScreen({
   member /* { id, memberCode?, fullName, roleTitle } */,
   qrValue,
   onSignOut,
+  onAnalytics,
 }) {
   return (
     <CircuitFrame variant="accent">
@@ -46,10 +46,14 @@ export function MemberQrScreen({
           />
         </div>
 
-        <button type="button" className="ghost-btn qr-screen__back" onClick={onSignOut}>
-          <MdRefresh aria-hidden />
-          Use a different credential
-        </button>
+        <div className="qr-screen__actions">
+          <button type="button" className="ghost-btn" onClick={onSignOut}>
+            Logout
+          </button>
+          <button type="button" className="ghost-btn" onClick={onAnalytics}>
+            Analytics
+          </button>
+        </div>
       </div>
     </CircuitFrame>
   )

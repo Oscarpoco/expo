@@ -18,6 +18,11 @@ import {
 import { validateProfilePhotoFile, uploadMemberProfilePhoto } from './services/memberPhotoUpload.js'
 import { buildMemberQrPayload } from './services/memberQr.js'
 import { saveQrCodeRecord } from './services/qrCodesRepo.js'
+import {
+  clearQrSession,
+  readQrSession,
+  saveQrSession,
+} from './services/qrSessionStorage.js'
 import { signInMemberSession } from './services/sessionAuth.js'
 import { buildProfileSlug } from './utils/memberSlug.js'
 import logo from './assets/logo.png'
@@ -25,6 +30,7 @@ import './styles/forms.css'
 import './App.css'
 import { CreateMemberScreen } from './screens/CreateMemberScreen.jsx'
 import { LandingScreen } from './screens/LandingScreen.jsx'
+import { MemberAnalyticsScreen } from './screens/MemberAnalyticsScreen.jsx'
 import { MemberNotFoundPrompt } from './screens/MemberNotFoundPrompt.jsx'
 import { MemberQrScreen } from './screens/MemberQrScreen.jsx'
 
@@ -33,7 +39,10 @@ const PHASE = Object.freeze({
   unknownMember: 'unknownMember',
   register: 'register',
   qr: 'qr',
+  analytics: 'analytics',
 })
+
+const savedQrSession = readQrSession()
 
 function summarizeError(error, fallbackMessage) {
   const code =
@@ -50,11 +59,13 @@ function summarizeError(error, fallbackMessage) {
 }
 
 export function ExpoApp() {
-  const [phase, setPhase] = useState(PHASE.landing)
+  const [phase, setPhase] = useState(
+    savedQrSession ? PHASE.qr : PHASE.landing,
+  )
   const [busy, setBusy] = useState(false)
   const [pendingCode, setPendingCode] = useState('')
-  const [member, setMember] = useState(null)
-  const [qrPayload, setQrPayload] = useState('')
+  const [member, setMember] = useState(savedQrSession?.member ?? null)
+  const [qrPayload, setQrPayload] = useState(savedQrSession?.qrPayload ?? '')
   const [lookupError, setLookupError] = useState(null)
   const [persistError, setPersistError] = useState(null)
 
@@ -69,10 +80,34 @@ export function ExpoApp() {
     return () => clearTimeout(id)
   }, [toast])
 
+  useEffect(() => {
+    if (!savedQrSession) return undefined
+    let cancelled = false
+
+    signInMemberSession().catch(() => {
+      if (cancelled) return
+      clearQrSession()
+      setPhase(PHASE.landing)
+      setMember(null)
+      setQrPayload('')
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (phase === PHASE.qr && member && qrPayload) {
+      saveQrSession({ member, qrPayload })
+    }
+  }, [phase, member, qrPayload])
+
   const dismissToast = useCallback(() => setToast(null), [])
 
   const restartFlow = useCallback(async () => {
     await signOut(auth).catch(() => {})
+    clearQrSession()
     setPhase(PHASE.landing)
     setMember(null)
     setQrPayload('')
@@ -80,6 +115,14 @@ export function ExpoApp() {
     setLookupError(null)
     setPersistError(null)
     setBusy(false)
+  }, [])
+
+  const openAnalytics = useCallback(() => {
+    setPhase(PHASE.analytics)
+  }, [])
+
+  const backToQr = useCallback(() => {
+    setPhase(PHASE.qr)
   }, [])
 
   const verifyMemberCode = useCallback(async (code) => {
@@ -258,7 +301,18 @@ export function ExpoApp() {
         member={member}
         qrValue={qrPayload}
         onSignOut={restartFlow}
+        onAnalytics={openAnalytics}
       />
+    ) : (
+      <LandingScreen
+        onVerify={verifyMemberCode}
+        busy={false}
+        submitError="Lost session snapshot. Submit your member code again."
+      />
+    )
+  } else if (phase === PHASE.analytics) {
+    body = member ? (
+      <MemberAnalyticsScreen member={member} onBack={backToQr} />
     ) : (
       <LandingScreen
         onVerify={verifyMemberCode}
