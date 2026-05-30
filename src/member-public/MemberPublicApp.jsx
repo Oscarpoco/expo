@@ -316,8 +316,12 @@ export function MemberPublicApp() {
         aria-hidden={!menuOpen}
         inert={menuOpen ? undefined : ''}
       >
-          <div className="member-public-menu__head">
-            <p className="member-public-menu__title">Navigate</p>
+          <div className="member-public-menu__brand">
+            <img
+              className="member-public-menu__logo"
+              src={logo}
+              alt="WWISE"
+            />
             <button
               type="button"
               className="member-public-menu__close"
@@ -326,6 +330,10 @@ export function MemberPublicApp() {
             >
               <MdClose aria-hidden />
             </button>
+          </div>
+
+          <div className="member-public-menu__head">
+            <p className="member-public-menu__title">Navigate</p>
           </div>
 
           <div className="member-public-menu__body">

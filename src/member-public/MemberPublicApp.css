@@ -122,10 +122,27 @@
   box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
 }
 
+.member-public-menu__brand {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  padding-bottom: 0.65rem;
+}
+
+.member-public-menu__logo {
+  display: block;
+  width: min(8rem, 52vw);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 16px rgba(65, 172, 255, 0.25));
+}
+
 .member-public-menu__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 0.75rem;
   flex-shrink: 0;
   padding-bottom: 0.85rem;
@@ -143,6 +160,9 @@
 }
 
 .member-public-menu__close {
+  position: absolute;
+  top: 0;
+  right: 0;
   display: grid;
   place-items: center;
   width: 2.5rem;
