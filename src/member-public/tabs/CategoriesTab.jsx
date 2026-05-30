@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   MdCloudQueue,
   MdHealthAndSafety,
@@ -162,7 +163,8 @@ export function CategoriesTab() {
         })}
       </ul>
 
-      {active ? (
+      {active
+        ? createPortal(
         <div
           className={`catalogue-sheet${closing ? ' is-closing' : ''}`}
           role="dialog"
@@ -230,8 +232,10 @@ export function CategoriesTab() {
               </div>
             </div>
           </div>
-        </div>
-      ) : null}
+        </div>,
+            document.body,
+          )
+        : null}
     </section>
   )
 }
