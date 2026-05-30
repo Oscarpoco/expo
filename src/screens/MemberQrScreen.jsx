@@ -6,7 +6,6 @@ import {
   EXPO_SCAN_PROMPT,
   EXPO_WELCOME_TITLE,
   MEMBER_ROLE_FALLBACK,
-  QR_PRESENT_LABEL,
   QR_PROFILE_EYEBROW,
 } from '../constants/companyDefaults.js'
 import { CircuitFrame } from '../components/CircuitFrame.jsx'
@@ -35,19 +34,16 @@ export function MemberQrScreen({
         </section>
 
         <div className="qr-card">
-          <p className="qr-card__label">{QR_PRESENT_LABEL}</p>
-          <div className="qr-card__canvas-wrap">
-            <QRCodeSVG
-              value={qrValue}
-              size={200}
-              level="Q"
-              title="WWISE member profile QR"
-              includeMargin={false}
-              bgColor="#050913"
-              fgColor="#5bbce4"
-              className="qr-card__qr"
-            />
-          </div>
+          <QRCodeSVG
+            value={qrValue}
+            size={200}
+            level="Q"
+            title="WWISE member profile QR"
+            includeMargin={false}
+            bgColor="#050913"
+            fgColor="#5bbce4"
+            className="qr-card__qr"
+          />
         </div>
 
         <button type="button" className="ghost-btn qr-screen__back" onClick={onSignOut}>
