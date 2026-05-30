@@ -12,6 +12,22 @@ import { db } from '../firebase.js'
 
 import './MemberQrScreen.css'
 
+function ConnectionCard({ connectionId, fields }) {
+  return (
+    <div className="qr-analytics__connection-card">
+      {fields.map((field) => (
+        <div
+          key={`${connectionId}-${field.label}`}
+          className="qr-analytics__connection-field"
+        >
+          <span className="qr-analytics__connection-label">{field.label}</span>
+          <span className="qr-analytics__connection-value">{field.value}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function MemberAnalyticsScreen({ member, onBack }) {
   const [stats, setStats] = useState(null)
   const [connections, setConnections] = useState([])
@@ -161,35 +177,40 @@ export function MemberAnalyticsScreen({ member, onBack }) {
               <ul className="qr-analytics__connection-list">
                 {connections.map((connection, index) => {
                   const cardGroups = buildConnectionCardGroups(connection)
+                  const [firstCard, ...extraCards] = cardGroups
+
                   return (
-                    <li key={connection.id} className="qr-analytics__connection-row">
-                      <div className="qr-analytics__connection-stack">
-                        {cardGroups.map((fields, cardIndex) => (
-                          <div
-                            key={`${connection.id}-card-${cardIndex}`}
-                            className="qr-analytics__connection-card"
-                          >
-                            {fields.map((field) => (
-                              <div
-                                key={`${connection.id}-${field.label}`}
-                                className="qr-analytics__connection-field"
-                              >
-                                <span className="qr-analytics__connection-label">
-                                  {field.label}
-                                </span>
-                                <span className="qr-analytics__connection-value">
-                                  {field.value}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
+                    <li
+                      key={connection.id}
+                      className="qr-analytics__connection-entry"
+                    >
+                      <div className="qr-analytics__connection-row">
+                        <ConnectionCard
+                          connectionId={connection.id}
+                          fields={firstCard}
+                        />
+                        <div className="qr-analytics__connection-rank-wrap">
+                          <span className="qr-analytics__connection-rank" aria-hidden>
+                            {index + 1}
+                          </span>
+                        </div>
                       </div>
-                      <div className="qr-analytics__connection-rank-wrap">
-                        <span className="qr-analytics__connection-rank" aria-hidden>
-                          {index + 1}
-                        </span>
-                      </div>
+
+                      {extraCards.map((fields, cardIndex) => (
+                        <div
+                          key={`${connection.id}-row-${cardIndex + 1}`}
+                          className="qr-analytics__connection-row qr-analytics__connection-row--continued"
+                        >
+                          <ConnectionCard
+                            connectionId={connection.id}
+                            fields={fields}
+                          />
+                          <span
+                            className="qr-analytics__connection-rank-spacer"
+                            aria-hidden
+                          />
+                        </div>
+                      ))}
                     </li>
                   )
                 })}
