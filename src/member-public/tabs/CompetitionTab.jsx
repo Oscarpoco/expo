@@ -1,12 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  MdCloudQueue,
-  MdHealthAndSafety,
-  MdVerifiedUser,
-  MdSmartToy,
-  MdLock,
-  MdShield,
-} from 'react-icons/md'
 import './PlaceholderTab.css'
 import {
   MILESTONE_IDS,
@@ -24,39 +16,6 @@ import { buildMemberVCard, downloadVCard } from '../../utils/vCard.js'
 const LINKEDIN_FALLBACK_URL = 'https://www.linkedin.com/'
 const SCHEDULE_PDF_PATH = '/training.pdf'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-const SERVICES = [
-  {
-    id: 'overview',
-    label: 'WWISE Company Overview and SaaS',
-    Icon: MdCloudQueue,
-  },
-  {
-    id: 'insurance',
-    label: 'WWISE Cybersecurity Insurance Support',
-    Icon: MdHealthAndSafety,
-  },
-  {
-    id: 'grc',
-    label: 'Integrated GRC, Cybersecurity and Assurance Solutions',
-    Icon: MdVerifiedUser,
-  },
-  {
-    id: 'iso42001',
-    label: 'ISO/IEC 42001:2023 Services',
-    Icon: MdSmartToy,
-  },
-  {
-    id: 'iso27001',
-    label: 'ISO/IEC 27001:2022 Services',
-    Icon: MdLock,
-  },
-  {
-    id: 'sheq',
-    label: 'SHEQ',
-    Icon: MdShield,
-  },
-]
 
 /**
  * @param {string} url
@@ -206,32 +165,6 @@ export function CompetitionTab({ member }) {
         Finish all 3 steps to qualify, submit your email, and confirm your
         competition entry.
       </p>
-
-      <h3 className="competition-tab__services-title">Explore our solutions</h3>
-      <ul className="competition-services" aria-label="WWISE solutions">
-        {SERVICES.map(({ id, label, Icon }) => (
-          <li key={id} className="service-badge">
-            <svg className="service-badge__ring" viewBox="0 0 200 200" aria-hidden>
-              <defs>
-                <path
-                  id={`ring-${id}`}
-                  fill="none"
-                  d="M 100,100 m -82,0 a 82,82 0 1,0 164,0 a 82,82 0 1,0 -164,0"
-                />
-              </defs>
-              <text textAnchor="middle">
-                <textPath href={`#ring-${id}`} startOffset="25%">
-                  {label}
-                </textPath>
-              </text>
-            </svg>
-            <span className="service-badge__icon" aria-hidden>
-              <Icon />
-            </span>
-            <span className="sr-only">{label}</span>
-          </li>
-        ))}
-      </ul>
 
       <ol className="competition-tab__milestones">
         {milestones.map((item, index) => {

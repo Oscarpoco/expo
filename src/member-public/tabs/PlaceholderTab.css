@@ -133,23 +133,37 @@
   color: var(--text-muted);
 }
 
-.competition-tab__services-title {
-  margin: 0.5rem 0 0;
+.catalogue-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.catalogue-tab__head h2 {
+  margin: 0 0 0.45rem;
   font-family: var(--font-display);
-  font-size: 0.86rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--circuit-trace-strong);
+  color: var(--text-strong);
+}
+
+.catalogue-tab__head p {
+  margin: 0;
+  font-family: var(--font-industrial);
+  font-size: 0.84rem;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
 }
 
 .competition-services {
   list-style: none;
-  margin: 0.1rem 0 0.4rem;
+  margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.9rem;
+  gap: 1rem;
 }
 
 .service-badge {
@@ -201,9 +215,9 @@
 .service-badge__ring text {
   fill: var(--circuit-trace-strong);
   font-family: var(--font-industrial);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
 }
 
@@ -212,8 +226,8 @@
   z-index: 1;
   display: grid;
   place-items: center;
-  width: 3.1rem;
-  height: 3.1rem;
+  width: 4.1rem;
+  height: 4.1rem;
   border-radius: 50%;
   color: var(--brand-white);
   background: linear-gradient(
@@ -227,8 +241,8 @@
 }
 
 .service-badge__icon svg {
-  width: 1.55rem;
-  height: 1.55rem;
+  width: 2.2rem;
+  height: 2.2rem;
 }
 
 .competition-tab__milestones {
