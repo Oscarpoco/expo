@@ -41,19 +41,9 @@ const SERVICES = [
   },
 ]
 
-/**
- * Scales the curved label font down for longer names so they fit fully
- * around the ring without overlapping themselves.
- * @param {string} label
- * @returns {number} font size in SVG user units
- */
-function ringFontSize(label) {
-  const n = label.length
-  if (n > 46) return 10.5
-  if (n > 34) return 12
-  if (n > 24) return 13
-  return 14
-}
+// Path circumference for r=84 (2 * PI * 84). Long labels are stretched across
+// (most of) this length so they spread around the whole ring at full font size.
+const RING_CIRCUMFERENCE = 527
 
 export function CategoriesTab() {
   return (
@@ -64,7 +54,9 @@ export function CategoriesTab() {
       </header>
 
       <ul className="competition-services" aria-label="WWISE solutions">
-        {SERVICES.map(({ id, label, Icon }) => (
+        {SERVICES.map(({ id, label, Icon }) => {
+          const longLabel = label.length > 40
+          return (
           <li key={id} className="service-badge">
             <svg className="service-badge__ring" viewBox="0 0 200 200" aria-hidden>
               <defs>
@@ -74,11 +66,13 @@ export function CategoriesTab() {
                   d="M 100,100 m -84,0 a 84,84 0 1,0 168,0 a 84,84 0 1,0 -168,0"
                 />
               </defs>
-              <text
-                textAnchor="middle"
-                style={{ fontSize: `${ringFontSize(label)}px` }}
-              >
-                <textPath href={`#ring-${id}`} startOffset="25%">
+              <text textAnchor="middle">
+                <textPath
+                  href={`#ring-${id}`}
+                  startOffset="25%"
+                  textLength={longLabel ? RING_CIRCUMFERENCE : undefined}
+                  lengthAdjust={longLabel ? 'spacing' : undefined}
+                >
                   {label}
                 </textPath>
               </text>
@@ -88,7 +82,8 @@ export function CategoriesTab() {
             </span>
             <span className="sr-only">{label}</span>
           </li>
-        ))}
+          )
+        })}
       </ul>
     </section>
   )
