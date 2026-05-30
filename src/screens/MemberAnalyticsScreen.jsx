@@ -12,18 +12,17 @@ import { db } from '../firebase.js'
 
 import './MemberQrScreen.css'
 
-function ConnectionCard({ connectionId, fields }) {
+function ConnectionCard({ fields }) {
+  const [primary, secondary] = fields
+
   return (
-    <div className="qr-analytics__connection-card">
-      {fields.map((field) => (
-        <div
-          key={`${connectionId}-${field.label}`}
-          className="qr-analytics__connection-field"
-        >
-          <span className="qr-analytics__connection-label">{field.label}</span>
-          <span className="qr-analytics__connection-value">{field.value}</span>
-        </div>
-      ))}
+    <div className="qr-analytics__winner qr-analytics__winner--connection">
+      <span className="qr-analytics__winner-email">
+        {primary?.value || 'Unknown'}
+      </span>
+      {secondary ? (
+        <span className="qr-analytics__winner-meta">{secondary.value}</span>
+      ) : null}
     </div>
   )
 }
@@ -185,10 +184,7 @@ export function MemberAnalyticsScreen({ member, onBack }) {
                       className="qr-analytics__connection-entry"
                     >
                       <div className="qr-analytics__connection-row">
-                        <ConnectionCard
-                          connectionId={connection.id}
-                          fields={firstCard}
-                        />
+                        <ConnectionCard fields={firstCard} />
                         <div className="qr-analytics__connection-rank-wrap">
                           <span className="qr-analytics__connection-rank" aria-hidden>
                             {index + 1}
@@ -201,10 +197,7 @@ export function MemberAnalyticsScreen({ member, onBack }) {
                           key={`${connection.id}-row-${cardIndex + 1}`}
                           className="qr-analytics__connection-row qr-analytics__connection-row--continued"
                         >
-                          <ConnectionCard
-                            connectionId={connection.id}
-                            fields={fields}
-                          />
+                          <ConnectionCard fields={fields} />
                           <span
                             className="qr-analytics__connection-rank-spacer"
                             aria-hidden

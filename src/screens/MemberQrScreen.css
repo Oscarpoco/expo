@@ -290,7 +290,7 @@
 .qr-analytics__connection-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.55rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -299,7 +299,7 @@
 .qr-analytics__connection-entry {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.55rem;
 }
 
 .qr-analytics__connection-row {
@@ -309,57 +309,10 @@
   align-items: stretch;
 }
 
-.qr-analytics__connection-row--continued {
-  align-items: stretch;
-}
-
 .qr-analytics__connection-rank-spacer {
   flex-shrink: 0;
   width: 3rem;
   min-width: 3rem;
-}
-
-.qr-analytics__connection-card {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.35rem;
-  padding: 0.75rem 1rem;
-  border: 1px dashed rgba(227, 6, 19, 0.72);
-  border-radius: 9999px;
-  background: linear-gradient(
-    155deg,
-    rgba(227, 6, 19, 0.1) 0%,
-    var(--brand-black) 100%
-  );
-  box-shadow:
-    inset 0 0 0 1px rgba(227, 6, 19, 0.18),
-    0 0 14px rgba(227, 6, 19, 0.1);
-}
-
-.qr-analytics__connection-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.12rem;
-}
-
-.qr-analytics__connection-label {
-  font-family: var(--font-industrial);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(227, 6, 19, 0.85);
-}
-
-.qr-analytics__connection-value {
-  font-family: var(--font-ui);
-  font-size: 0.88rem;
-  font-weight: 600;
-  line-height: 1.35;
-  color: var(--text-strong);
-  word-break: break-word;
 }
 
 .qr-analytics__connection-rank-wrap {
@@ -384,6 +337,22 @@
   line-height: 1;
   color: var(--brand-red);
   box-shadow: 0 0 12px rgba(227, 6, 19, 0.2);
+}
+
+.qr-analytics__winner--connection {
+  border: 1px dashed rgba(227, 6, 19, 0.72);
+  box-shadow:
+    inset 0 0 0 1px rgba(227, 6, 19, 0.22),
+    0 0 18px rgba(227, 6, 19, 0.12);
+  background: linear-gradient(
+    155deg,
+    rgba(227, 6, 19, 0.1) 0%,
+    var(--brand-black) 100%
+  );
+}
+
+.qr-analytics__winner--connection .qr-analytics__winner-meta {
+  color: var(--brand-red);
 }
 
 .qr-analytics__winner-list {
