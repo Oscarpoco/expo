@@ -186,34 +186,48 @@ export function CategoriesTab() {
               <MdClose aria-hidden />
             </button>
 
-            <h3 className="catalogue-sheet__title">{active.label}</h3>
-            <p className="catalogue-sheet__overview">{active.overview}</p>
-
-            <div className="catalogue-sheet__doc">
-              <span className="catalogue-sheet__doc-icon" aria-hidden>
-                <MdPictureAsPdf />
+            <div className="catalogue-sheet__header">
+              <span className="catalogue-sheet__header-icon" aria-hidden>
+                <active.Icon />
               </span>
-              <span className="catalogue-sheet__doc-name">
-                {active.downloadName}
-              </span>
+              <div className="catalogue-sheet__header-text">
+                <span className="catalogue-sheet__eyebrow">WWISE Catalogue</span>
+                <h3 className="catalogue-sheet__title">{active.label}</h3>
+              </div>
             </div>
 
-            <div className="catalogue-sheet__actions">
-              <a
-                className="primary-btn"
-                href={active.pdf}
-                download={active.downloadName}
-              >
-                <MdDownload aria-hidden />
-                Download PDF
-              </a>
-              <button
-                type="button"
-                className="ghost-btn"
-                onClick={closeSheet}
-              >
-                Close
-              </button>
+            <div className="catalogue-sheet__body">
+              <p className="catalogue-sheet__overview">{active.overview}</p>
+
+              <div className="catalogue-sheet__doc">
+                <span className="catalogue-sheet__doc-icon" aria-hidden>
+                  <MdPictureAsPdf />
+                </span>
+                <span className="catalogue-sheet__doc-meta">
+                  <span className="catalogue-sheet__doc-label">PDF document</span>
+                  <span className="catalogue-sheet__doc-name">
+                    {active.downloadName}
+                  </span>
+                </span>
+              </div>
+
+              <div className="catalogue-sheet__actions">
+                <a
+                  className="primary-btn"
+                  href={active.pdf}
+                  download={active.downloadName}
+                >
+                  <MdDownload aria-hidden />
+                  Download PDF
+                </a>
+                <button
+                  type="button"
+                  className="ghost-btn"
+                  onClick={closeSheet}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
