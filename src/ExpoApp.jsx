@@ -29,6 +29,7 @@ import logo from './assets/logo.png'
 import './styles/forms.css'
 import './App.css'
 import { CreateMemberScreen } from './screens/CreateMemberScreen.jsx'
+import { EventDayBadge } from './components/EventDayBadge.jsx'
 import { LandingScreen } from './screens/LandingScreen.jsx'
 import { MemberAnalyticsScreen } from './screens/MemberAnalyticsScreen.jsx'
 import { MemberNotFoundPrompt } from './screens/MemberNotFoundPrompt.jsx'
@@ -329,6 +330,7 @@ export function ExpoApp() {
           <div className="app-header__brand-stack">
             <img className="app-header__logo" src={logo} alt="WWISE" />
           </div>
+          <EventDayBadge />
         </div>
       </header>
       <main className="app-main">
