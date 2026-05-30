@@ -6,7 +6,6 @@ import { CircuitFrame } from '../components/CircuitFrame.jsx'
 import { Toast } from '../components/Toast.jsx'
 import {
   BRAND_ENGINEERING_LOCKUP,
-  BRAND_ISO_STANDARDS_LINE,
   BRAND_MISSION_TAGLINE,
   EXPO_CONNECT_LINE,
   EXPO_SHORT_LABEL,
@@ -42,16 +41,6 @@ const TAB_MENU = [
   { id: TAB.schedule, label: 'Schedule' },
   { id: TAB.competition, label: 'Competition' },
 ]
-
-/**
- * @param {string} [memberAddress]
- * @returns {string}
- */
-function resolveMenuAddress(memberAddress) {
-  const fromMember = (memberAddress || '').trim()
-  if (fromMember) return fromMember
-  return PLACEHOLDER_COMPANY_ADDRESS
-}
 
 const AREA_OF_INTEREST_OPTIONS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
@@ -284,7 +273,7 @@ export function MemberPublicApp() {
     return <CompetitionTab member={member} />
   }
 
-  const menuAddress = resolveMenuAddress(member?.companyAddress)
+  const menuAddress = PLACEHOLDER_COMPANY_ADDRESS
 
   return (
     <div className={`app member-public-app${menuOpen ? ' member-public-app--menu-open' : ''}`}>
@@ -357,7 +346,6 @@ export function MemberPublicApp() {
             </div>
 
             <div className="member-public-menu__meta">
-              <p className="member-public-menu__iso">{BRAND_ISO_STANDARDS_LINE}</p>
               <p className="member-public-menu__address">
                 <MdOutlineLocationOn aria-hidden />
                 {menuAddress}

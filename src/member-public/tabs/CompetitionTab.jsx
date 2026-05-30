@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   FaLinkedinIn,
   FaXTwitter,
@@ -130,6 +130,16 @@ export function CompetitionTab({ member }) {
   const allDone = completedCount === milestones.length
   const hasEntered = Boolean(progress.entrySubmitted)
 
+  const entryRef = useRef(null)
+
+  useEffect(() => {
+    if (!allDone) return
+    const id = window.setTimeout(() => {
+      entryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }, 120)
+    return () => window.clearTimeout(id)
+  }, [allDone, hasEntered])
+
   async function handleSubmitWinner(event) {
     event.preventDefault()
     setError('')
@@ -238,7 +248,10 @@ export function CompetitionTab({ member }) {
       </p>
 
       {!allDone ? null : hasEntered ? (
-        <div className="competition-entry-card competition-entry-card--thanks">
+        <div
+          ref={entryRef}
+          className="competition-entry-card competition-entry-card--thanks"
+        >
           <h3>Thank you for entering!</h3>
           <p>
             Your competition entry is confirmed and a confirmation email has
@@ -246,7 +259,7 @@ export function CompetitionTab({ member }) {
           </p>
         </div>
       ) : (
-        <div className="competition-entry-card">
+        <div ref={entryRef} className="competition-entry-card">
           <h3>
             Congratulations you have entered the competition to win prizes
           </h3>

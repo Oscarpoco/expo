@@ -99,7 +99,7 @@
 }
 
 .member-public-menu {
-  transform: translate3d(100%, 0, 0);
+  transform: translate3d(0, -100%, 0);
   visibility: hidden;
   pointer-events: none;
   transition:
