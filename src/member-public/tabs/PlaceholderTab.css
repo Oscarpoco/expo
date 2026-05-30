@@ -305,6 +305,45 @@
   width: 100%;
 }
 
+.competition-tab__socials {
+  display: flex;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: 0.15rem;
+}
+
+.competition-tab__social {
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(91, 188, 228, 0.45);
+  background: rgba(43, 127, 212, 0.1);
+  color: var(--text-strong);
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    background 0.16s ease;
+}
+
+.competition-tab__social svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.competition-tab__social:hover,
+.competition-tab__social:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--brand-red);
+  color: var(--brand-red);
+  background: rgba(227, 6, 19, 0.1);
+  outline: none;
+}
+
 .competition-tab__actions {
   display: flex;
   gap: 0.5rem;

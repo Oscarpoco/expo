@@ -1,4 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  FaLinkedinIn,
+  FaXTwitter,
+  FaInstagram,
+  FaFacebookF,
+} from 'react-icons/fa6'
 import './PlaceholderTab.css'
 import {
   MILESTONE_IDS,
@@ -13,20 +19,35 @@ import { buildMemberProfilePath } from '../../utils/memberSlug.js'
 import { getPublicAppOrigin } from '../../utils/publicAppUrl.js'
 import { buildMemberVCard, downloadVCard } from '../../utils/vCard.js'
 
-const LINKEDIN_FALLBACK_URL = 'https://www.linkedin.com/'
 const SCHEDULE_PDF_PATH = '/training.pdf'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-/**
- * @param {string} url
- * @returns {string}
- */
-function normalizeExternalUrl(url) {
-  const trimmed = (url || '').trim()
-  if (!trimmed) return ''
-  if (/^https?:\/\//i.test(trimmed)) return trimmed
-  return `https://${trimmed}`
-}
+const SOCIAL_LINKS = [
+  {
+    id: 'linkedin',
+    label: 'LinkedIn',
+    url: 'https://www.linkedin.com/company/wwise/posts/?feedView=all',
+    Icon: FaLinkedinIn,
+  },
+  {
+    id: 'x',
+    label: 'X',
+    url: 'https://x.com/wwiseofficial',
+    Icon: FaXTwitter,
+  },
+  {
+    id: 'instagram',
+    label: 'Instagram',
+    url: 'https://www.instagram.com/wwise_sa',
+    Icon: FaInstagram,
+  },
+  {
+    id: 'facebook',
+    label: 'Facebook',
+    url: 'https://web.facebook.com/WorldWideIndustrialandSystemsEngineers',
+    Icon: FaFacebookF,
+  },
+]
 
 export function CompetitionTab({ member }) {
   const [progress, setProgress] = useState(() => getCompetitionProgress())
@@ -73,12 +94,10 @@ export function CompetitionTab({ member }) {
     markCompetitionMilestone(MILESTONE_IDS.downloadTraining)
   }, [])
 
-  const handleOpenLinkedIn = useCallback(() => {
-    const target =
-      normalizeExternalUrl(member?.linkedInUrl) || LINKEDIN_FALLBACK_URL
-    window.open(target, '_blank', 'noopener,noreferrer')
+  const handleOpenSocial = useCallback((url) => {
+    window.open(url, '_blank', 'noopener,noreferrer')
     markCompetitionMilestone(MILESTONE_IDS.shareLinkedIn)
-  }, [member?.linkedInUrl])
+  }, [])
 
   const milestones = useMemo(
     () => [
@@ -98,14 +117,11 @@ export function CompetitionTab({ member }) {
       },
       {
         id: MILESTONE_IDS.shareLinkedIn,
-        title: 'Open our LinkedIn and engage',
-        actionLabel: 'Open LinkedIn',
-        doneLabel: 'Done',
-        onAction: handleOpenLinkedIn,
-        lockWhenDone: true,
+        title: 'Follow or engage with us on social media',
+        type: 'social',
       },
     ],
-    [handleSaveContact, handleDownloadSchedule, handleOpenLinkedIn],
+    [handleSaveContact, handleDownloadSchedule],
   )
 
   const completedCount = milestones.filter(
@@ -169,7 +185,6 @@ export function CompetitionTab({ member }) {
       <ol className="competition-tab__milestones">
         {milestones.map((item, index) => {
           const done = Boolean(progress.milestones[item.id])
-          const lockedDone = done && item.lockWhenDone
           return (
             <li
               key={item.id}
@@ -186,14 +201,33 @@ export function CompetitionTab({ member }) {
                 </p>
               </div>
 
-              <button
-                type="button"
-                className={`${done ? 'ghost-btn' : 'primary-btn'} competition-tab__action-btn`}
-                onClick={item.onAction}
-                disabled={lockedDone}
-              >
-                {done ? item.doneLabel : item.actionLabel}
-              </button>
+              {item.type === 'social' ? (
+                <div
+                  className="competition-tab__socials"
+                  role="group"
+                  aria-label="Open a WWISE social channel to complete this step"
+                >
+                  {SOCIAL_LINKS.map((social) => (
+                    <button
+                      key={social.id}
+                      type="button"
+                      className="competition-tab__social"
+                      onClick={() => handleOpenSocial(social.url)}
+                      aria-label={`Open WWISE ${social.label}`}
+                    >
+                      <social.Icon aria-hidden />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={`${done ? 'ghost-btn' : 'primary-btn'} competition-tab__action-btn`}
+                  onClick={item.onAction}
+                >
+                  {done ? item.doneLabel : item.actionLabel}
+                </button>
+              )}
             </li>
           )
         })}
