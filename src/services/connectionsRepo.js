@@ -1,4 +1,15 @@
-import { addDoc, collection, doc, increment, serverTimestamp, setDoc } from 'firebase/firestore'
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  increment,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc,
+  where,
+} from 'firebase/firestore'
 
 import { db } from '../firebase.js'
 
@@ -78,4 +89,24 @@ export async function createConnectionRecord(payload) {
     areaOfInterest: (payload?.areaOfInterest || '').trim(),
     createdAt: serverTimestamp(),
   })
+}
+
+/**
+ * @param {string} memberId
+ * @returns {Promise<Array<{ id: string, fullName?: string, email?: string, contactNumber?: string, companyName?: string, areaOfInterest?: string, createdAt?: import('firebase/firestore').Timestamp }>>}
+ */
+export async function listConnectionsByMemberId(memberId) {
+  const id = (memberId || '').trim()
+  if (!id) return []
+
+  const connectionsQuery = query(
+    collection(db, CONNECTIONS_COLLECTION),
+    where('memberId', '==', id),
+    orderBy('createdAt', 'desc'),
+  )
+  const snap = await getDocs(connectionsQuery)
+  return snap.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data(),
+  }))
 }

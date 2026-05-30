@@ -2,31 +2,25 @@ import { useEffect, useState } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
 
 import { CircuitFrame } from '../components/CircuitFrame.jsx'
-import { MEMBER_CONNECTION_STATS_COLLECTION } from '../services/connectionsRepo.js'
+import {
+  listConnectionsByMemberId,
+  MEMBER_CONNECTION_STATS_COLLECTION,
+} from '../services/connectionsRepo.js'
 import { listWinnerEntries } from '../services/winnersRepo.js'
+import { buildConnectionCardGroups, formatAnalyticsDate } from '../utils/connectionCards.js'
 import { db } from '../firebase.js'
 
 import './MemberQrScreen.css'
 
-/**
- * @param {import('firebase/firestore').Timestamp | undefined} value
- * @returns {string}
- */
-function formatWinnerDate(value) {
-  if (!value || typeof value.toDate !== 'function') return '—'
-  return value.toDate().toLocaleDateString(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
 export function MemberAnalyticsScreen({ member, onBack }) {
   const [stats, setStats] = useState(null)
+  const [connections, setConnections] = useState([])
   const [winners, setWinners] = useState([])
   const [loading, setLoading] = useState(true)
+  const [connectionsLoading, setConnectionsLoading] = useState(true)
   const [winnersLoading, setWinnersLoading] = useState(true)
   const [error, setError] = useState('')
+  const [connectionsError, setConnectionsError] = useState('')
   const [winnersError, setWinnersError] = useState('')
 
   useEffect(() => {
@@ -54,6 +48,34 @@ export function MemberAnalyticsScreen({ member, onBack }) {
     }
 
     load()
+    return () => {
+      cancelled = true
+    }
+  }, [member.id])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadConnections() {
+      setConnectionsLoading(true)
+      setConnectionsError('')
+      try {
+        const entries = await listConnectionsByMemberId(member.id)
+        if (cancelled) return
+        setConnections(entries)
+      } catch (loadError) {
+        if (cancelled) return
+        setConnectionsError(
+          typeof loadError?.message === 'string'
+            ? loadError.message
+            : 'Could not load connections.',
+        )
+      } finally {
+        if (!cancelled) setConnectionsLoading(false)
+      }
+    }
+
+    loadConnections()
     return () => {
       cancelled = true
     }
@@ -121,6 +143,60 @@ export function MemberAnalyticsScreen({ member, onBack }) {
             </ul>
           )}
 
+          <section
+            className="qr-analytics__connections"
+            aria-labelledby="connections-heading"
+          >
+            <h2 id="connections-heading" className="qr-analytics__section-title">
+              My Connections
+            </h2>
+
+            {connectionsLoading ? (
+              <p className="qr-analytics__status">Loading connections…</p>
+            ) : connectionsError ? (
+              <p className="form-error qr-analytics__status">{connectionsError}</p>
+            ) : connections.length === 0 ? (
+              <p className="qr-analytics__status">No connections yet.</p>
+            ) : (
+              <ul className="qr-analytics__connection-list">
+                {connections.map((connection, index) => {
+                  const cardGroups = buildConnectionCardGroups(connection)
+                  return (
+                    <li key={connection.id} className="qr-analytics__connection-row">
+                      <div className="qr-analytics__connection-stack">
+                        {cardGroups.map((fields, cardIndex) => (
+                          <div
+                            key={`${connection.id}-card-${cardIndex}`}
+                            className="qr-analytics__connection-card"
+                          >
+                            {fields.map((field) => (
+                              <div
+                                key={`${connection.id}-${field.label}`}
+                                className="qr-analytics__connection-field"
+                              >
+                                <span className="qr-analytics__connection-label">
+                                  {field.label}
+                                </span>
+                                <span className="qr-analytics__connection-value">
+                                  {field.value}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="qr-analytics__connection-rank-wrap">
+                        <span className="qr-analytics__connection-rank" aria-hidden>
+                          {index + 1}
+                        </span>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </section>
+
           <section className="qr-analytics__winners" aria-labelledby="winners-heading">
             <h2 id="winners-heading" className="qr-analytics__section-title">
               Winners
@@ -159,7 +235,7 @@ export function MemberAnalyticsScreen({ member, onBack }) {
                         <span className="qr-analytics__winner-meta">
                           {isMine ? 'Your referral' : 'Entry'}
                           {' · '}
-                          {formatWinnerDate(winner.createdAt)}
+                          {formatAnalyticsDate(winner.createdAt)}
                         </span>
                       </div>
                     </li>
