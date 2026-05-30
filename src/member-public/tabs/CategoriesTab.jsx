@@ -9,6 +9,7 @@ import {
   MdShield,
   MdClose,
   MdDownload,
+  MdVisibility,
   MdPictureAsPdf,
 } from 'react-icons/md'
 import './PlaceholderTab.css'
@@ -215,20 +216,22 @@ export function CategoriesTab() {
 
               <div className="catalogue-sheet__actions">
                 <a
+                  className="ghost-btn"
+                  href={active.pdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MdVisibility aria-hidden />
+                  View PDF
+                </a>
+                <a
                   className="primary-btn"
                   href={active.pdf}
                   download={active.downloadName}
                 >
                   <MdDownload aria-hidden />
-                  Download PDF
+                  Download
                 </a>
-                <button
-                  type="button"
-                  className="ghost-btn"
-                  onClick={closeSheet}
-                >
-                  Close
-                </button>
               </div>
             </div>
           </div>
