@@ -40,6 +40,9 @@ export const LANDING_LEAD =
 
 export const LANDING_MEMBER_CODE_PLACEHOLDER = 'Enter your member access code'
 
+export const REGISTRATION_MEMBER_CODE_PLACEHOLDER =
+  'Create the access code you need'
+
 export const LANDING_CTA_VERIFY = 'Sign in'
 
 /** Member lookup miss */

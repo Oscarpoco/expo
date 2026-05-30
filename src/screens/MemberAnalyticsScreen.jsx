@@ -134,23 +134,32 @@ export function MemberAnalyticsScreen({ member, onBack }) {
               <p className="qr-analytics__status">No competition entries yet.</p>
             ) : (
               <ul className="qr-analytics__winner-list">
-                {winners.map((winner) => {
+                {winners.map((winner, index) => {
                   const isMine = winner.memberId === member.id
                   return (
                     <li
                       key={winner.id}
-                      className={`qr-analytics__winner${
-                        isMine ? ' qr-analytics__winner--mine' : ''
+                      className={`qr-analytics__winner-row${
+                        isMine ? ' qr-analytics__winner-row--mine' : ''
                       }`}
                     >
-                      <span className="qr-analytics__winner-email">
-                        {winner.email || 'Unknown email'}
+                      <span className="qr-analytics__winner-rank" aria-hidden>
+                        {index + 1}
                       </span>
-                      <span className="qr-analytics__winner-meta">
-                        {isMine ? 'Your referral' : 'Entry'}
-                        {' · '}
-                        {formatWinnerDate(winner.createdAt)}
-                      </span>
+                      <div
+                        className={`qr-analytics__winner${
+                          isMine ? ' qr-analytics__winner--mine' : ''
+                        }`}
+                      >
+                        <span className="qr-analytics__winner-email">
+                          {winner.email || 'Unknown email'}
+                        </span>
+                        <span className="qr-analytics__winner-meta">
+                          {isMine ? 'Your referral' : 'Entry'}
+                          {' · '}
+                          {formatWinnerDate(winner.createdAt)}
+                        </span>
+                      </div>
                     </li>
                   )
                 })}

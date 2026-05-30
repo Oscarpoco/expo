@@ -23,6 +23,7 @@ import {
   FORM_PRIMARY_CTA_READY,
   FORM_SITE_LEGEND_ORG,
   FORM_TITLE,
+  REGISTRATION_MEMBER_CODE_PLACEHOLDER,
   PLACEHOLDER_COMPANY_ADDRESS,
   PLACEHOLDER_COMPANY_NAME,
   PLACEHOLDER_COMPANY_WEBSITE,
@@ -221,7 +222,7 @@ export function CreateMemberScreen({
               onChange={(e) => patchField('memberCode', e.target.value)}
               disabled={busy}
               spellCheck={false}
-              placeholder="Printed or requested code"
+              placeholder={REGISTRATION_MEMBER_CODE_PLACEHOLDER}
               required
             />
 
