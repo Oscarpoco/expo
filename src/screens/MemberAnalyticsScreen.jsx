@@ -143,9 +143,11 @@ export function MemberAnalyticsScreen({ member, onBack }) {
                         isMine ? ' qr-analytics__winner-row--mine' : ''
                       }`}
                     >
-                      <span className="qr-analytics__winner-rank" aria-hidden>
-                        {index + 1}
-                      </span>
+                      <div className="qr-analytics__winner-rank-wrap">
+                        <span className="qr-analytics__winner-rank" aria-hidden>
+                          {index + 1}
+                        </span>
+                      </div>
                       <div
                         className={`qr-analytics__winner${
                           isMine ? ' qr-analytics__winner--mine' : ''
