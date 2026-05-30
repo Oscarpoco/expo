@@ -31,10 +31,6 @@ export function EventDayBadge() {
 
   return (
     <div className="event-day-badge event-day-badge--status" aria-label={message}>
-      <div className="event-day-badge__circle-wrap">
-        <span className="event-day-badge__pulse" aria-hidden />
-        <div className="event-day-badge__circle event-day-badge__circle--idle" aria-hidden />
-      </div>
       <p className="event-day-badge__message">
         {messageLines.map((line, index) => (
           <span key={`${line}-${index}`} className="event-day-badge__message-line">
@@ -42,6 +38,10 @@ export function EventDayBadge() {
           </span>
         ))}
       </p>
+      <div className="event-day-badge__circle-wrap">
+        <span className="event-day-badge__pulse" aria-hidden />
+        <div className="event-day-badge__circle event-day-badge__circle--idle" aria-hidden />
+      </div>
     </div>
   )
 }
