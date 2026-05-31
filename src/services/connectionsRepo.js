@@ -110,3 +110,18 @@ export async function listConnectionsByMemberId(memberId) {
     ...docSnap.data(),
   }))
 }
+
+/**
+ * @returns {Promise<Array<{ id: string, fullName?: string, email?: string, contactNumber?: string, companyName?: string, areaOfInterest?: string, memberId?: string, memberSlug?: string, memberName?: string, createdAt?: import('firebase/firestore').Timestamp }>>}
+ */
+export async function listAllConnections() {
+  const connectionsQuery = query(
+    collection(db, CONNECTIONS_COLLECTION),
+    orderBy('createdAt', 'desc'),
+  )
+  const snap = await getDocs(connectionsQuery)
+  return snap.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data(),
+  }))
+}

@@ -1,13 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
 
 import { CircuitFrame } from '../components/CircuitFrame.jsx'
 import {
+  listAllConnections,
   listConnectionsByMemberId,
   MEMBER_CONNECTION_STATS_COLLECTION,
 } from '../services/connectionsRepo.js'
 import { listWinnerEntries } from '../services/winnersRepo.js'
 import { buildConnectionCardGroups, formatAnalyticsDate } from '../utils/connectionCards.js'
+import {
+  buildAnalyticsExportCsv,
+  buildAnalyticsExportFilename,
+  downloadCsvFile,
+} from '../utils/exportAnalyticsCsv.js'
 import { db } from '../firebase.js'
 
 import './MemberQrScreen.css'
@@ -37,6 +43,8 @@ export function MemberAnalyticsScreen({ member, onBack }) {
   const [error, setError] = useState('')
   const [connectionsError, setConnectionsError] = useState('')
   const [winnersError, setWinnersError] = useState('')
+  const [exportBusy, setExportBusy] = useState(false)
+  const [exportError, setExportError] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -127,6 +135,37 @@ export function MemberAnalyticsScreen({ member, onBack }) {
   const anonymous = stats?.anonymousCount ?? 0
   const known = stats?.knownCount ?? 0
   const total = stats?.totalCount ?? anonymous + known
+
+  const handleExport = useCallback(async () => {
+    setExportBusy(true)
+    setExportError('')
+    try {
+      const [myConnections, allConnections, winnerEntries] = await Promise.all([
+        listConnectionsByMemberId(member.id),
+        listAllConnections(),
+        listWinnerEntries(),
+      ])
+
+      const csv = buildAnalyticsExportCsv({
+        myConnections,
+        allConnections,
+        winners: winnerEntries,
+        memberName: member.fullName || member.profileSlug || member.id,
+      })
+      const filename = buildAnalyticsExportFilename(
+        member.profileSlug || member.id,
+      )
+      downloadCsvFile(csv, filename)
+    } catch (exportErr) {
+      setExportError(
+        typeof exportErr?.message === 'string'
+          ? exportErr.message
+          : 'Could not export analytics.',
+      )
+    } finally {
+      setExportBusy(false)
+    }
+  }, [member.fullName, member.id, member.profileSlug])
 
   return (
     <CircuitFrame variant="accent">
@@ -261,9 +300,22 @@ export function MemberAnalyticsScreen({ member, onBack }) {
         </div>
 
         <div className="qr-analytics__footer">
-          <button type="button" className="ghost-btn" onClick={onBack}>
-            Back to QR
-          </button>
+          <div className="qr-analytics__footer-actions">
+            <button type="button" className="ghost-btn" onClick={onBack}>
+              Back to QR
+            </button>
+            <button
+              type="button"
+              className="primary-btn"
+              onClick={handleExport}
+              disabled={exportBusy}
+            >
+              {exportBusy ? 'Exporting…' : 'Export'}
+            </button>
+          </div>
+          {exportError ? (
+            <p className="form-error qr-analytics__export-error">{exportError}</p>
+          ) : null}
         </div>
       </div>
     </CircuitFrame>
