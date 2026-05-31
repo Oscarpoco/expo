@@ -38,8 +38,6 @@ function ConnectionCard({ fields }) {
 }
 
 function StatRing({ id, label, value }) {
-  const longLabel = label.length > 18
-
   return (
     <li className="qr-analytics__stat-ring">
       <div className="qr-analytics__stat-ring-body">
@@ -55,8 +53,8 @@ function StatRing({ id, label, value }) {
             <textPath
               href={`#analytics-ring-${id}`}
               startOffset="25%"
-              textLength={longLabel ? RING_CIRCUMFERENCE : undefined}
-              lengthAdjust={longLabel ? 'spacing' : undefined}
+              textLength={RING_CIRCUMFERENCE}
+              lengthAdjust="spacing"
             >
               {label}
             </textPath>
