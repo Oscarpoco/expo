@@ -226,6 +226,15 @@
   justify-content: center;
 }
 
+.qr-screen__actions .qr-screen__logout-btn {
+  color: var(--brand-red);
+}
+
+.qr-screen__actions .qr-screen__logout-btn:hover:not(:disabled) {
+  color: var(--signal-amber-bright);
+  border-color: rgba(227, 6, 19, 0.55);
+}
+
 .qr-screen--analytics {
   min-height: 100%;
   overflow: hidden;

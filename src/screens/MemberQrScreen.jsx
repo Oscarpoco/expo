@@ -47,7 +47,7 @@ export function MemberQrScreen({
         </div>
 
         <div className="qr-screen__actions">
-          <button type="button" className="ghost-btn" onClick={onSignOut}>
+          <button type="button" className="ghost-btn qr-screen__logout-btn" onClick={onSignOut}>
             Logout
           </button>
           <button type="button" className="ghost-btn" onClick={onAnalytics}>
