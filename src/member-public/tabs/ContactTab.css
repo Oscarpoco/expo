@@ -7,7 +7,7 @@
 .contact-card {
   position: relative;
   z-index: 1;
-  padding: 0;
+  padding: 5px 0 0;
   border: 0;
   border-radius: 18px;
   background: transparent;
