@@ -18,6 +18,10 @@ import { db } from '../firebase.js'
 
 import './MemberQrScreen.css'
 
+const RING_CIRCUMFERENCE = 527
+const RING_PATH =
+  'M 100,100 m -84,0 a 84,84 0 1,0 168,0 a 84,84 0 1,0 -168,0'
+
 function ConnectionCard({ fields }) {
   const [primary, secondary] = fields
 
@@ -30,6 +34,42 @@ function ConnectionCard({ fields }) {
         <span className="qr-analytics__winner-meta">{secondary.value}</span>
       ) : null}
     </div>
+  )
+}
+
+function StatRing({ id, label, value }) {
+  const longLabel = label.length > 18
+
+  return (
+    <li className="qr-analytics__stat-ring">
+      <div className="qr-analytics__stat-ring-body">
+        <svg
+          className="qr-analytics__stat-ring-svg"
+          viewBox="0 0 200 200"
+          aria-hidden
+        >
+          <defs>
+            <path id={`analytics-ring-${id}`} fill="none" d={RING_PATH} />
+          </defs>
+          <text textAnchor="middle">
+            <textPath
+              href={`#analytics-ring-${id}`}
+              startOffset="25%"
+              textLength={longLabel ? RING_CIRCUMFERENCE : undefined}
+              lengthAdjust={longLabel ? 'spacing' : undefined}
+            >
+              {label}
+            </textPath>
+          </text>
+        </svg>
+        <span className="qr-analytics__stat-ring-value" aria-hidden>
+          {value}
+        </span>
+        <span className="sr-only">
+          {label}: {value}
+        </span>
+      </div>
+    </li>
   )
 }
 
@@ -135,6 +175,11 @@ export function MemberAnalyticsScreen({ member, onBack }) {
   const anonymous = stats?.anonymousCount ?? 0
   const known = stats?.knownCount ?? 0
   const total = stats?.totalCount ?? anonymous + known
+  const statItems = [
+    { id: 'total', label: 'Total scans', value: total },
+    { id: 'anonymous', label: 'Anonymous visits', value: anonymous },
+    { id: 'known', label: 'Known connections', value: known },
+  ]
 
   const handleExport = useCallback(async () => {
     setExportBusy(true)
@@ -181,19 +226,10 @@ export function MemberAnalyticsScreen({ member, onBack }) {
           ) : error ? (
             <p className="form-error qr-analytics__status">{error}</p>
           ) : (
-            <ul className="qr-analytics__stats">
-              <li>
-                <span className="qr-analytics__label">Total scans</span>
-                <span className="qr-analytics__value">{total}</span>
-              </li>
-              <li>
-                <span className="qr-analytics__label">Anonymous visits</span>
-                <span className="qr-analytics__value">{anonymous}</span>
-              </li>
-              <li>
-                <span className="qr-analytics__label">Known connections</span>
-                <span className="qr-analytics__value">{known}</span>
-              </li>
+            <ul className="qr-analytics__stats" aria-label="Profile scan statistics">
+              {statItems.map((item) => (
+                <StatRing key={item.id} {...item} />
+              ))}
             </ul>
           )}
 
