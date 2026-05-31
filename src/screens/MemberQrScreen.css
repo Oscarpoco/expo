@@ -329,10 +329,12 @@
   align-items: stretch;
 }
 
-.qr-analytics__connection-rank-spacer {
-  flex-shrink: 0;
-  width: 3rem;
-  min-width: 3rem;
+.qr-analytics__connection-row--continued {
+  width: 100%;
+}
+
+.qr-analytics__connection-row--continued .qr-analytics__winner {
+  width: 100%;
 }
 
 .qr-analytics__connection-rank-wrap {

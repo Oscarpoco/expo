@@ -234,13 +234,9 @@ export function MemberAnalyticsScreen({ member, onBack }) {
                       {extraCards.map((fields, cardIndex) => (
                         <div
                           key={`${connection.id}-row-${cardIndex + 1}`}
-                          className="qr-analytics__connection-row qr-analytics__connection-row--continued"
+                          className="qr-analytics__connection-row--continued"
                         >
                           <ConnectionCard fields={fields} />
-                          <span
-                            className="qr-analytics__connection-rank-spacer"
-                            aria-hidden
-                          />
                         </div>
                       ))}
                     </li>
