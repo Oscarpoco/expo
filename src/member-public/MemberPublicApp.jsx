@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { MdClose, MdOutlineLocationOn } from 'react-icons/md'
+import { MdClose } from 'react-icons/md'
 
 import { CircuitFrame } from '../components/CircuitFrame.jsx'
 import { Toast } from '../components/Toast.jsx'
@@ -359,10 +359,7 @@ export function MemberPublicApp() {
             </div>
 
             <div className="member-public-menu__meta">
-              <p className="member-public-menu__address">
-                <MdOutlineLocationOn aria-hidden />
-                {menuAddress}
-              </p>
+              <p className="member-public-menu__address">{menuAddress}</p>
             </div>
 
             <button
