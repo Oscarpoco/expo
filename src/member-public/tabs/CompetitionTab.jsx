@@ -117,7 +117,7 @@ export function CompetitionTab({ member }) {
       },
       {
         id: MILESTONE_IDS.shareLinkedIn,
-        title: 'Share any of our post on any social',
+        title: 'Share any of our posts on any social',
         type: 'social',
       },
     ],

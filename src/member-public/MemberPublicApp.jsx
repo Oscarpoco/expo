@@ -320,7 +320,7 @@ export function MemberPublicApp() {
         inert={menuOpen ? undefined : ''}
       >
           <div className="member-public-menu__head">
-            <p className="member-public-menu__title">Navigate</p>
+            <p className="member-public-menu__title">EXPO</p>
             <img
               className="member-public-menu__logo"
               src={logo}
@@ -338,7 +338,7 @@ export function MemberPublicApp() {
 
           <div className="member-public-menu__body">
             <div className="member-public-menu__tabs">
-              {TAB_MENU.map((tab) => (
+              {TAB_MENU.map((tab, index) => (
                 <button
                   key={tab.id}
                   type="button"
@@ -348,7 +348,10 @@ export function MemberPublicApp() {
                     closeMenu()
                   }}
                 >
-                  {tab.label}
+                  <span className="member-public-menu__tab-num" aria-hidden>
+                    {index + 1}
+                  </span>
+                  <span className="member-public-menu__tab-label">{tab.label}</span>
                 </button>
               ))}
             </div>
