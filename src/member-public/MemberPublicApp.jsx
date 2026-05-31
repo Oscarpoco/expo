@@ -251,8 +251,12 @@ export function MemberPublicApp() {
   function renderContent() {
     if (loading) {
       return (
-        <div className="member-public__state">
-          <div className="member-public__spinner" aria-hidden />
+        <div className="member-public__state" role="status" aria-live="polite">
+          <div className="member-public__loader" aria-hidden>
+            <span className="member-public__loader-pulse" />
+            <span className="member-public__loader-pulse member-public__loader-pulse--delay" />
+            <img className="member-public__loader-logo" src={logo} alt="" />
+          </div>
           <p className="member-public__state-label">Loading profile…</p>
         </div>
       )
