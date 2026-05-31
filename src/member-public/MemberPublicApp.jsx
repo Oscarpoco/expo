@@ -382,7 +382,15 @@ export function MemberPublicApp() {
           aria-modal="true"
           aria-label="Connect form"
         >
+          <button
+            type="button"
+            className="member-connect-modal__backdrop"
+            onClick={closeConnectModal}
+            aria-label="Close connect form"
+            tabIndex={-1}
+          />
           <div className="member-connect-modal__panel">
+            <div className="member-connect-modal__grab" aria-hidden />
             <div className="member-connect-modal__head">
               <h3>Connect</h3>
               <button
