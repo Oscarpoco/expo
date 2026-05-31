@@ -351,7 +351,9 @@ export function MemberPublicApp() {
                   <span className="member-public-menu__tab-num" aria-hidden>
                     {index + 1}
                   </span>
-                  <span className="member-public-menu__tab-label">{tab.label}</span>
+                  <span className="member-public-menu__tab-card">
+                    <span className="member-public-menu__tab-label">{tab.label}</span>
+                  </span>
                 </button>
               ))}
             </div>

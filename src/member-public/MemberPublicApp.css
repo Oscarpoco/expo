@@ -195,27 +195,23 @@
 }
 
 .member-public-menu__tab {
-  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.6rem;
   width: 100%;
-  min-height: 3rem;
-  padding: 0.65rem 3.25rem;
-  border: 1px solid var(--circuit-outline);
-  border-radius: 14px;
-  background: rgba(43, 127, 212, 0.06);
-  color: var(--text-strong);
+  padding: 0;
+  border: 0;
+  background: transparent;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .member-public-menu__tab-num {
-  position: absolute;
-  left: 0.75rem;
+  flex-shrink: 0;
   display: grid;
   place-items: center;
-  width: 2.1rem;
-  height: 2.1rem;
+  width: 2.35rem;
+  height: 2.35rem;
   border-radius: 50%;
   border: 1px dashed rgba(227, 6, 19, 0.72);
   background-color: var(--brand-black);
@@ -228,6 +224,19 @@
   box-shadow: 0 0 10px rgba(227, 6, 19, 0.18);
 }
 
+.member-public-menu__tab-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--circuit-outline);
+  border-radius: 14px;
+  background: rgba(43, 127, 212, 0.06);
+}
+
 .member-public-menu__tab-label {
   font-family: var(--font-industrial);
   font-size: 0.96875rem;
@@ -235,10 +244,10 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   text-align: center;
+  color: var(--text-strong);
 }
 
-.member-public-menu__tab--active {
-  color: var(--circuit-trace-strong);
+.member-public-menu__tab--active .member-public-menu__tab-card {
   border-color: rgba(43, 127, 212, 0.35);
   background: rgba(43, 127, 212, 0.1);
 }
