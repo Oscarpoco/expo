@@ -22,6 +22,27 @@
   text-align: center;
 }
 
+.contact-card__photo-btn {
+  flex-shrink: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 0;
+  transition: transform 0.18s ease;
+}
+
+.contact-card__photo-btn:hover {
+  transform: scale(1.03);
+}
+
+.contact-card__photo-btn:focus-visible {
+  outline: 2px solid var(--circuit-trace-strong);
+  outline-offset: 3px;
+}
+
 .contact-card__photo {
   flex-shrink: 0;
   width: 6.75rem;
@@ -234,4 +255,77 @@
   .contact-social-btn {
     transition: none;
   }
+
+  .contact-card__photo-btn {
+    transition: none;
+  }
+}
+
+.contact-photo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+}
+
+.contact-photo-lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  cursor: pointer;
+  background: rgba(3, 8, 12, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.contact-photo-lightbox__close {
+  position: absolute;
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgba(227, 6, 19, 0.55);
+  border-radius: 50%;
+  background: rgba(227, 6, 19, 0.12);
+  color: var(--brand-red);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease,
+    background 0.18s ease;
+}
+
+.contact-photo-lightbox__close svg {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+.contact-photo-lightbox__close:hover {
+  border-color: var(--brand-red);
+  color: var(--signal-amber-bright);
+  background: rgba(227, 6, 19, 0.2);
+}
+
+.contact-photo-lightbox__image {
+  position: relative;
+  z-index: 1;
+  max-width: min(100%, 28rem);
+  max-height: min(88vh, 36rem);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.35rem;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
 }

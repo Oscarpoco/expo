@@ -1,9 +1,11 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   FaLinkedinIn,
 } from 'react-icons/fa6'
 import {
   MdBusiness,
+  MdClose,
   MdMailOutline,
   MdOutlineLanguage,
   MdOutlinePhone,
@@ -62,6 +64,7 @@ function buildMailHref(email) {
 
 export function ContactTab({ member }) {
   const [saveHint, setSaveHint] = useState('')
+  const [photoOpen, setPhotoOpen] = useState(false)
 
   const profileUrl = useMemo(() => {
     const origin = getPublicAppOrigin()
@@ -168,18 +171,47 @@ export function ContactTab({ member }) {
   const photoUrl = (member.profilePhotoUrl || '').trim()
   const roleTitle = (member.roleTitle || '').trim()
   const companyName = displayCompanyName(member.companyName)
+  const memberName = member.fullName ?? 'Member'
+
+  const closePhoto = useCallback(() => {
+    setPhotoOpen(false)
+  }, [])
+
+  useEffect(() => {
+    if (!photoOpen) return undefined
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    function onKeyDown(event) {
+      if (event.key === 'Escape') closePhoto()
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [closePhoto, photoOpen])
 
   return (
     <div className="contact-tab">
       <article className="contact-card" aria-label="Member profile card">
         <div className="contact-card__plate">
           {photoUrl ? (
-            <img
-              className="contact-card__photo"
-              src={photoUrl}
-              alt=""
-              loading="lazy"
-            />
+            <button
+              type="button"
+              className="contact-card__photo-btn"
+              onClick={() => setPhotoOpen(true)}
+              aria-label={`View ${memberName} photo full screen`}
+            >
+              <img
+                className="contact-card__photo"
+                src={photoUrl}
+                alt=""
+                loading="lazy"
+              />
+            </button>
           ) : (
             <div className="contact-card__photo contact-card__photo--fallback" aria-hidden>
               <span>{(member.fullName || '?').charAt(0).toUpperCase()}</span>
@@ -249,6 +281,38 @@ export function ContactTab({ member }) {
           {saveHint}
         </p>
       ) : null}
+
+      {photoOpen && photoUrl
+        ? createPortal(
+            <div
+              className="contact-photo-lightbox"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${memberName} profile photo`}
+            >
+              <button
+                type="button"
+                className="contact-photo-lightbox__backdrop"
+                onClick={closePhoto}
+                aria-label="Close photo"
+              />
+              <button
+                type="button"
+                className="contact-photo-lightbox__close"
+                onClick={closePhoto}
+                aria-label="Close photo"
+              >
+                <MdClose aria-hidden />
+              </button>
+              <img
+                className="contact-photo-lightbox__image"
+                src={photoUrl}
+                alt={memberName}
+              />
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   )
 }
