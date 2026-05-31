@@ -18,9 +18,7 @@ import { db } from '../firebase.js'
 
 import './MemberQrScreen.css'
 
-const RING_CIRCUMFERENCE = 527
-const RING_PATH =
-  'M 100,100 m -84,0 a 84,84 0 1,0 168,0 a 84,84 0 1,0 -168,0'
+const TOP_RING_PATH = 'M 16,100 A 84,84 0 0,1 184,100'
 
 function ConnectionCard({ fields }) {
   const [primary, secondary] = fields
@@ -38,6 +36,8 @@ function ConnectionCard({ fields }) {
 }
 
 function StatRing({ id, label, value }) {
+  const pathId = `analytics-ring-top-${id}`
+
   return (
     <li className="qr-analytics__stat-ring">
       <div className="qr-analytics__stat-ring-body">
@@ -47,18 +47,20 @@ function StatRing({ id, label, value }) {
           aria-hidden
         >
           <defs>
-            <path id={`analytics-ring-${id}`} fill="none" d={RING_PATH} />
+            <path id={pathId} fill="none" d={TOP_RING_PATH} />
           </defs>
-          <text textAnchor="middle">
-            <textPath
-              href={`#analytics-ring-${id}`}
-              startOffset="25%"
-              textLength={RING_CIRCUMFERENCE}
-              lengthAdjust="spacing"
-            >
+          <text>
+            <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
               {label}
             </textPath>
           </text>
+          <g transform="translate(100, 100) scale(1, -1) translate(-100, -100)">
+            <text>
+              <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
+                {label}
+              </textPath>
+            </text>
+          </g>
         </svg>
         <span className="qr-analytics__stat-ring-value" aria-hidden>
           {value}
