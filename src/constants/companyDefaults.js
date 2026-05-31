@@ -95,6 +95,24 @@ export const PLACEHOLDER_COMPANY_WEBSITE = 'https://wwise.co.za'
 export const PLACEHOLDER_COMPANY_ADDRESS =
   '254 Hall Street, Westend Office Park, Building 2, Floor 2, Centurion, Pretoria, South Africa'
 
+/** Connect form — area of interest options (public member profile). */
+export const CONNECT_AREA_OF_INTEREST_OPTIONS = [
+  'Outsourcing',
+  'E-Learning',
+  'Continual Improvement',
+  'Software Development',
+  'Legal Compliance',
+  'Security Operations Center',
+  'Content Development and Multimedia',
+  'SharePoint Development',
+  'Automation',
+  'Virtual Reality, Augmented Reality Training Courses',
+  'QCTO Learnerships and Training',
+  'Learning Management System Development',
+  'IT GRC Implementation and Compliance',
+  'AI',
+]
+
 /** ISO management systems — shown in public profile navigation. */
 export const BRAND_ISO_STANDARDS_LINE =
   'ISO 45001 · ISO 14001 · ISO 9001 — occupational health, safety, environment & quality'

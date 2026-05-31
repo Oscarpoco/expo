@@ -7,6 +7,7 @@ import { Toast } from '../components/Toast.jsx'
 import {
   BRAND_ENGINEERING_LOCKUP,
   BRAND_MISSION_TAGLINE,
+  CONNECT_AREA_OF_INTEREST_OPTIONS,
   EXPO_CONNECT_LINE,
   EXPO_SHORT_LABEL,
   PLACEHOLDER_COMPANY_ADDRESS,
@@ -41,8 +42,6 @@ const TAB_MENU = [
   { id: TAB.schedule, label: 'Schedule' },
   { id: TAB.competition, label: 'Competition' },
 ]
-
-const AREA_OF_INTEREST_OPTIONS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 function seenPromptKey(memberId) {
   return `wwise.connect.seen.${memberId}`
@@ -457,7 +456,7 @@ export function MemberPublicApp() {
                 required
               >
                 <option value="">Select an option</option>
-                {AREA_OF_INTEREST_OPTIONS.map((option) => (
+                {CONNECT_AREA_OF_INTEREST_OPTIONS.map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
