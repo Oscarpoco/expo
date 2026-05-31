@@ -540,9 +540,9 @@
 .qr-analytics__stat-ring-svg text {
   fill: var(--circuit-trace-strong);
   font-family: var(--font-industrial);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.35px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
 }
 
@@ -550,7 +550,7 @@
   position: relative;
   z-index: 1;
   font-family: var(--font-display);
-  font-size: clamp(1.05rem, 4.2vw, 1.35rem);
+  font-size: 22px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.04em;
