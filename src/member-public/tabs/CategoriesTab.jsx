@@ -19,6 +19,7 @@ import insurancePdf from '../../assets/catalogues/WWISE Cybersecurity Insurance 
 import grcPdf from '../../assets/catalogues/Integrated GRC, Cybersecurity & Assurance Solutions.pdf'
 import iso42001Pdf from '../../assets/catalogues/ISO IEC 42001_2023 Services.pdf'
 import iso27001Pdf from '../../assets/catalogues/ISO IEC 27001_2022 Services.pdf'
+import sheqPdf from '../../assets/catalogues/sheq.pdf'
 
 // Path circumference for r=84 (2 * PI * 84). Long labels are stretched across
 // (most of) this length so they spread around the whole ring at full font size.
@@ -74,8 +75,7 @@ const SERVICES = [
     id: 'sheq',
     label: 'SHEQ',
     Icon: MdShield,
-    // Placeholder document until the SHEQ catalogue is provided.
-    pdf: overviewPdf,
+    pdf: sheqPdf,
     downloadName: 'WWISE-SHEQ.pdf',
     overview:
       'Safety, Health, Environment and Quality management services that keep your operations compliant and your people protected.',
