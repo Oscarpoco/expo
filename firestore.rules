@@ -28,5 +28,10 @@ service cloud.firestore {
     match /winners/{docId} {
       allow read, write: if true;
     }
+
+    // Prize draw results (persisted per member analytics session)
+    match /prizeWinners/{docId} {
+      allow read, write: if true;
+    }
   }
 }

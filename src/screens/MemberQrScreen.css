@@ -312,6 +312,16 @@
   margin: 0;
 }
 
+.qr-analytics__winners--draw {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.qr-analytics__draw-btn {
+  width: 100%;
+}
+
 .qr-analytics__connections {
   margin: 0;
 }

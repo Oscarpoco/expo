@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
 
 import { CircuitFrame } from '../components/CircuitFrame.jsx'
@@ -7,7 +7,12 @@ import {
   listConnectionsByMemberId,
   MEMBER_CONNECTION_STATS_COLLECTION,
 } from '../services/connectionsRepo.js'
+import { normalizeMemberEmail } from '../services/membersRepo.js'
 import { listWinnerEntries } from '../services/winnersRepo.js'
+import {
+  createPrizeWinner,
+  listPrizeWinnersByMemberId,
+} from '../services/prizeWinnersRepo.js'
 import { buildConnectionCardGroups, formatAnalyticsDate } from '../utils/connectionCards.js'
 import {
   buildAnalyticsExportCsv,
@@ -19,6 +24,7 @@ import { db } from '../firebase.js'
 import './MemberQrScreen.css'
 
 const TOP_RING_PATH = 'M 16,100 A 84,84 0 0,1 184,100'
+const EXPORT_ALLOWED_EMAIL = 'kausar@www.co.za'
 
 function ConnectionCard({ fields }) {
   const [primary, secondary] = fields
@@ -73,6 +79,38 @@ function StatRing({ id, label, value }) {
   )
 }
 
+function WinnerListRow({ winner, index, memberId, metaLabel = 'Entry' }) {
+  const isMine = winner.memberId === memberId
+
+  return (
+    <li
+      className={`qr-analytics__winner-row${
+        isMine ? ' qr-analytics__winner-row--mine' : ''
+      }`}
+    >
+      <div className="qr-analytics__winner-rank-wrap">
+        <span className="qr-analytics__winner-rank" aria-hidden>
+          {index + 1}
+        </span>
+      </div>
+      <div
+        className={`qr-analytics__winner${
+          isMine ? ' qr-analytics__winner--mine' : ''
+        }`}
+      >
+        <span className="qr-analytics__winner-email">
+          {winner.email || 'Unknown email'}
+        </span>
+        <span className="qr-analytics__winner-meta">
+          {isMine ? 'Your referral' : metaLabel}
+          {' · '}
+          {formatAnalyticsDate(winner.createdAt)}
+        </span>
+      </div>
+    </li>
+  )
+}
+
 export function MemberAnalyticsScreen({ member, onBack }) {
   const [stats, setStats] = useState(null)
   const [connections, setConnections] = useState([])
@@ -85,6 +123,10 @@ export function MemberAnalyticsScreen({ member, onBack }) {
   const [winnersError, setWinnersError] = useState('')
   const [exportBusy, setExportBusy] = useState(false)
   const [exportError, setExportError] = useState('')
+  const [prizeWinners, setPrizeWinners] = useState([])
+  const [prizeWinnersLoading, setPrizeWinnersLoading] = useState(true)
+  const [drawBusy, setDrawBusy] = useState(false)
+  const [drawError, setDrawError] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -172,6 +214,33 @@ export function MemberAnalyticsScreen({ member, onBack }) {
     }
   }, [])
 
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadPrizeWinners() {
+      setPrizeWinnersLoading(true)
+      try {
+        const entries = await listPrizeWinnersByMemberId(member.id)
+        if (cancelled) return
+        setPrizeWinners(entries)
+      } catch (loadError) {
+        if (cancelled) return
+        setDrawError(
+          typeof loadError?.message === 'string'
+            ? loadError.message
+            : 'Could not load prize winners.',
+        )
+      } finally {
+        if (!cancelled) setPrizeWinnersLoading(false)
+      }
+    }
+
+    loadPrizeWinners()
+    return () => {
+      cancelled = true
+    }
+  }, [member.id])
+
   const anonymous = stats?.anonymousCount ?? 0
   const known = stats?.knownCount ?? 0
   const total = stats?.totalCount ?? anonymous + known
@@ -180,6 +249,70 @@ export function MemberAnalyticsScreen({ member, onBack }) {
     { id: 'anonymous', label: 'Anonymous visits', value: anonymous },
     { id: 'known', label: 'Known connections', value: known },
   ]
+  const canExportAnalytics =
+    normalizeMemberEmail(member.email) === EXPORT_ALLOWED_EMAIL
+
+  const drawnWinnerIds = useMemo(
+    () => new Set(prizeWinners.map((record) => record.winnerEntryId)),
+    [prizeWinners],
+  )
+  const drawnWinners = useMemo(
+    () =>
+      prizeWinners.map((record) => {
+        const entry = winners.find((winner) => winner.id === record.winnerEntryId)
+        if (entry) return entry
+        return {
+          id: record.winnerEntryId,
+          email: record.email,
+          memberId: record.referrerMemberId,
+          createdAt: record.drawnAt,
+        }
+      }),
+    [prizeWinners, winners],
+  )
+  const winnersRemaining = winners.filter((entry) => !drawnWinnerIds.has(entry.id))
+  const allWinnersDrawn =
+    winners.length > 0 && winnersRemaining.length === 0
+
+  const handleGetWinner = useCallback(async () => {
+    const pool = winners.filter((entry) => !drawnWinnerIds.has(entry.id))
+
+    if (pool.length === 0) {
+      setDrawError(
+        winners.length === 0
+          ? 'No competition entries yet.'
+          : 'All winners have already been drawn.',
+      )
+      return
+    }
+
+    const randomIndex = Math.floor(Math.random() * pool.length)
+    const picked = pool[randomIndex]
+
+    setDrawBusy(true)
+    setDrawError('')
+
+    try {
+      await createPrizeWinner({
+        memberId: member.id,
+        winnerEntryId: picked.id,
+        email: picked.email || '',
+        referrerMemberId: picked.memberId,
+        drawOrder: prizeWinners.length + 1,
+      })
+
+      const entries = await listPrizeWinnersByMemberId(member.id)
+      setPrizeWinners(entries)
+    } catch (drawErr) {
+      setDrawError(
+        typeof drawErr?.message === 'string'
+          ? drawErr.message
+          : 'Could not save prize winner.',
+      )
+    } finally {
+      setDrawBusy(false)
+    }
+  }, [drawnWinnerIds, member.id, prizeWinners.length, winners])
 
   const handleExport = useCallback(async () => {
     setExportBusy(true)
@@ -282,50 +415,74 @@ export function MemberAnalyticsScreen({ member, onBack }) {
             )}
           </section>
 
-          <section className="qr-analytics__winners" aria-labelledby="winners-heading">
-            <h2 id="winners-heading" className="qr-analytics__section-title">
+          <section
+            className="qr-analytics__winners qr-analytics__winners--draw"
+            aria-labelledby="draw-winners-heading"
+          >
+            <h2 id="draw-winners-heading" className="qr-analytics__section-title">
               Winners
             </h2>
 
-            {winnersLoading ? (
+            <button
+              type="button"
+              className="primary-btn qr-analytics__draw-btn"
+              onClick={handleGetWinner}
+              disabled={winnersLoading || prizeWinnersLoading || drawBusy || allWinnersDrawn}
+            >
+              {drawBusy ? 'Drawing…' : 'GET THE WINNER'}
+            </button>
+
+            {drawError ? (
+              <p className="form-error qr-analytics__status">{drawError}</p>
+            ) : null}
+
+            {drawnWinners.length > 0 ? (
+              <ul className="qr-analytics__winner-list">
+                {drawnWinners.map((winner, index) => (
+                  <WinnerListRow
+                    key={prizeWinners[index]?.id ?? winner.id}
+                    winner={winner}
+                    index={index}
+                    memberId={member.id}
+                    metaLabel="Winner"
+                  />
+                ))}
+              </ul>
+            ) : winnersLoading || prizeWinnersLoading ? (
               <p className="qr-analytics__status">Loading winners…</p>
+            ) : winnersError ? (
+              <p className="form-error qr-analytics__status">{winnersError}</p>
+            ) : (
+              <p className="qr-analytics__status">
+                Press the button to draw a random winner.
+              </p>
+            )}
+          </section>
+
+          <section
+            className="qr-analytics__winners"
+            aria-labelledby="participants-heading"
+          >
+            <h2 id="participants-heading" className="qr-analytics__section-title">
+              Participants
+            </h2>
+
+            {winnersLoading ? (
+              <p className="qr-analytics__status">Loading participants…</p>
             ) : winnersError ? (
               <p className="form-error qr-analytics__status">{winnersError}</p>
             ) : winners.length === 0 ? (
               <p className="qr-analytics__status">No competition entries yet.</p>
             ) : (
               <ul className="qr-analytics__winner-list">
-                {winners.map((winner, index) => {
-                  const isMine = winner.memberId === member.id
-                  return (
-                    <li
-                      key={winner.id}
-                      className={`qr-analytics__winner-row${
-                        isMine ? ' qr-analytics__winner-row--mine' : ''
-                      }`}
-                    >
-                      <div className="qr-analytics__winner-rank-wrap">
-                        <span className="qr-analytics__winner-rank" aria-hidden>
-                          {index + 1}
-                        </span>
-                      </div>
-                      <div
-                        className={`qr-analytics__winner${
-                          isMine ? ' qr-analytics__winner--mine' : ''
-                        }`}
-                      >
-                        <span className="qr-analytics__winner-email">
-                          {winner.email || 'Unknown email'}
-                        </span>
-                        <span className="qr-analytics__winner-meta">
-                          {isMine ? 'Your referral' : 'Entry'}
-                          {' · '}
-                          {formatAnalyticsDate(winner.createdAt)}
-                        </span>
-                      </div>
-                    </li>
-                  )
-                })}
+                {winners.map((winner, index) => (
+                  <WinnerListRow
+                    key={winner.id}
+                    winner={winner}
+                    index={index}
+                    memberId={member.id}
+                  />
+                ))}
               </ul>
             )}
           </section>
@@ -336,16 +493,18 @@ export function MemberAnalyticsScreen({ member, onBack }) {
             <button type="button" className="ghost-btn" onClick={onBack}>
               Back to QR
             </button>
-            <button
-              type="button"
-              className="primary-btn"
-              onClick={handleExport}
-              disabled={exportBusy}
-            >
-              {exportBusy ? 'Exporting…' : 'Export'}
-            </button>
+            {canExportAnalytics ? (
+              <button
+                type="button"
+                className="primary-btn"
+                onClick={handleExport}
+                disabled={exportBusy}
+              >
+                {exportBusy ? 'Exporting…' : 'Export'}
+              </button>
+            ) : null}
           </div>
-          {exportError ? (
+          {canExportAnalytics && exportError ? (
             <p className="form-error qr-analytics__export-error">{exportError}</p>
           ) : null}
         </div>

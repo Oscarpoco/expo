@@ -7,6 +7,14 @@
         { "fieldPath": "memberId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "prizeWinners",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "memberId", "order": "ASCENDING" },
+        { "fieldPath": "drawOrder", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
