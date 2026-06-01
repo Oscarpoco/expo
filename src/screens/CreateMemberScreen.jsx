@@ -269,7 +269,7 @@ export function CreateMemberScreen({
               onChange={(e) => patchField('phoneNumber', e.target.value)}
               disabled={busy}
               autoComplete="tel"
-              placeholder="+44 7984 402110"
+              placeholder="+27 82 123 4567"
               required
             />
 
@@ -286,7 +286,7 @@ export function CreateMemberScreen({
               value={form.email}
               onChange={(e) => patchField('email', e.target.value)}
               disabled={busy}
-              placeholder="name@organisation.com"
+              placeholder="name@wwise.co.za"
               required
             />
 
