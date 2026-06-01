@@ -24,7 +24,9 @@ import { db } from '../firebase.js'
 import './MemberQrScreen.css'
 
 const TOP_RING_PATH = 'M 16,100 A 84,84 0 0,1 184,100'
-const EXPORT_ALLOWED_EMAIL = 'kausar@www.co.za'
+const ANALYTICS_ADMIN_EMAIL = normalizeMemberEmail(
+  import.meta.env.VITE_ANALYTICS_ADMIN_EMAIL ?? '',
+)
 
 function ConnectionCard({ fields }) {
   const [primary, secondary] = fields
@@ -113,7 +115,9 @@ function WinnerListRow({ winner, index, memberId, metaLabel = 'Entry' }) {
 
 export function MemberAnalyticsScreen({ member, onBack }) {
   const isKausarAdmin = useMemo(
-    () => normalizeMemberEmail(member.email) === EXPORT_ALLOWED_EMAIL,
+    () =>
+      Boolean(ANALYTICS_ADMIN_EMAIL) &&
+      normalizeMemberEmail(member.email) === ANALYTICS_ADMIN_EMAIL,
     [member.email],
   )
   const [stats, setStats] = useState(null)

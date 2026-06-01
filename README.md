@@ -83,7 +83,7 @@ A numbered list of everyone who submitted the **Connect** form on your public pr
 
 #### Winners (prize draw — admin only)
 
-Visible only when signed in as **kausar@www.co.za**:
+Visible only when signed in with the email set in `VITE_ANALYTICS_ADMIN_EMAIL` (see `.env`):
 
 1. Tap **GET THE WINNER**.
 2. The app **randomly picks one participant** from the competition pool who has not been drawn yet.
@@ -97,7 +97,7 @@ Full list of everyone who completed the **Competition** tab and submitted their 
 
 #### Export (admin only)
 
-The **Export** button and **Winners** prize-draw section only appear when signed in as **kausar@www.co.za**. Export downloads a CSV with connections and competition data.
+The **Export** button and **Winners** prize-draw section only appear for the analytics admin email configured in `VITE_ANALYTICS_ADMIN_EMAIL`. Export downloads a CSV with connections and competition data.
 
 #### Back to QR
 
@@ -219,7 +219,7 @@ Member signs in  →  Shows QR code  →  Visitor scans
 
 - Keep your QR screen brightness up for easy scanning.
 - Check Analytics during the day for new connections.
-- Use **GET THE WINNER** only when you are ready to announce a draw — draws cannot be undone from the app. *(Admin account only: kausar@www.co.za.)*
+- Use **GET THE WINNER** only when you are ready to announce a draw — draws cannot be undone from the app. *(Analytics admin only — see `VITE_ANALYTICS_ADMIN_EMAIL`.)*
 
 **Visitors**
 
