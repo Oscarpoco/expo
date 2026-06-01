@@ -2,9 +2,14 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 
 import { storage } from '../firebase.js'
 
-export const PROFILE_PHOTO_MAX_BYTES = 2 * 1024 * 1024 // 2 MiB
+export const PROFILE_PHOTO_MAX_MB = 10
+export const PROFILE_PHOTO_MAX_BYTES = PROFILE_PHOTO_MAX_MB * 1024 * 1024
 
 const ALLOWED_IMAGE_TYPES = /^image\/(jpeg|jpg|png|webp)$/i
+
+function profilePhotoTooLargeMessage() {
+  return `Photo must be ${PROFILE_PHOTO_MAX_MB} MB or smaller.`
+}
 
 /**
  * Upload a member profile photo. Caller must authenticate (e.g. anonymous) first.
@@ -21,7 +26,7 @@ export async function uploadMemberProfilePhoto(file, memberCodeHint = '') {
     throw new Error('Use JPG, PNG, or WebP for your photo.')
   }
   if (file.size > PROFILE_PHOTO_MAX_BYTES) {
-    throw new Error('Photo must be 2 MB or smaller.')
+    throw new Error(profilePhotoTooLargeMessage())
   }
 
   const ext =
@@ -50,7 +55,7 @@ export function validateProfilePhotoFile(file) {
     return 'Use JPG, PNG, or WebP.'
   }
   if (file.size > PROFILE_PHOTO_MAX_BYTES) {
-    return 'Photo must be 2 MB or smaller.'
+    return profilePhotoTooLargeMessage()
   }
   return null
 }

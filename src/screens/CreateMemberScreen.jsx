@@ -28,6 +28,7 @@ import {
   PLACEHOLDER_COMPANY_NAME,
   PLACEHOLDER_COMPANY_WEBSITE,
 } from '../constants/companyDefaults.js'
+import { PROFILE_PHOTO_MAX_MB } from '../services/memberPhotoUpload.js'
 import { CircuitFrame } from '../components/CircuitFrame.jsx'
 
 import './CreateMemberScreen.css'
@@ -164,7 +165,7 @@ export function CreateMemberScreen({
             <div className="member-form-shell__photo-block">
               <div className="field-label member-form-shell__photo-label">
                 <MdPhotoCamera aria-hidden className="field-label__icon" />
-                Profile photo — optional · JPG · PNG · WebP · max 2 MB
+                Profile photo — optional · JPG · PNG · WebP · max {PROFILE_PHOTO_MAX_MB} MB
               </div>
               <input
                 id="fld-photo"
