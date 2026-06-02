@@ -17,6 +17,7 @@ export function formatAnalyticsDate(value) {
  *   email?: string,
  *   contactNumber?: string,
  *   companyName?: string,
+ *   areaOfInterest?: string,
  *   createdAt?: import('firebase/firestore').Timestamp
  * }} connection
  * @returns {Array<Array<{ label: string, value: string }>>}
@@ -31,6 +32,7 @@ export function buildConnectionCardGroups(connection) {
       value: formatAnalyticsDate(connection.createdAt),
     },
     { label: 'EMAIL', value: (connection.email || '').trim() },
+    { label: 'INTEREST', value: (connection.areaOfInterest || '').trim() },
   ].filter((field) => field.value && field.value !== '—')
 
   const cards = []
