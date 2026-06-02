@@ -17,32 +17,25 @@ export function formatAnalyticsDate(value) {
  *   email?: string,
  *   contactNumber?: string,
  *   companyName?: string,
- *   areaOfInterest?: string,
  *   createdAt?: import('firebase/firestore').Timestamp
  * }} connection
- * @returns {Array<Array<{ label: string, value: string }>>}
+ * @returns {Array<{ label: string, value: string }>}
  */
-export function buildConnectionCardGroups(connection) {
+export function buildConnectionDisplayFields(connection) {
   const fields = [
-    { label: 'Name', value: (connection.fullName || '').trim() },
-    { label: 'Email', value: (connection.email || '').trim() },
-    { label: 'Phone', value: (connection.contactNumber || '').trim() },
-    { label: 'Company', value: (connection.companyName || '').trim() },
-    { label: 'Interest', value: (connection.areaOfInterest || '').trim() },
+    { label: 'NAME', value: (connection.fullName || '').trim() },
+    { label: 'COMPANY', value: (connection.companyName || '').trim() },
+    { label: 'PHONE NUMBER', value: (connection.contactNumber || '').trim() },
     {
-      label: 'Date',
+      label: 'DATE',
       value: formatAnalyticsDate(connection.createdAt),
     },
+    { label: 'EMAIL', value: (connection.email || '').trim() },
   ].filter((field) => field.value && field.value !== '—')
 
-  const cards = []
-  for (let index = 0; index < fields.length; index += 2) {
-    cards.push(fields.slice(index, index + 2))
+  if (fields.length === 0) {
+    return [{ label: 'CONNECTION', value: 'No details recorded' }]
   }
 
-  if (cards.length === 0) {
-    return [[{ label: 'Connection', value: 'No details recorded' }]]
-  }
-
-  return cards
+  return fields
 }

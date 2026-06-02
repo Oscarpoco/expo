@@ -13,7 +13,7 @@ import {
   createPrizeWinner,
   listPrizeWinnersByMemberId,
 } from '../services/prizeWinnersRepo.js'
-import { buildConnectionCardGroups, formatAnalyticsDate } from '../utils/connectionCards.js'
+import { buildConnectionDisplayFields, formatAnalyticsDate } from '../utils/connectionCards.js'
 import {
   buildAnalyticsExportCsv,
   buildAnalyticsExportFilename,
@@ -29,16 +29,14 @@ const ANALYTICS_ADMIN_EMAIL = normalizeMemberEmail(
 )
 
 function ConnectionCard({ fields }) {
-  const [primary, secondary] = fields
-
   return (
     <div className="qr-analytics__winner qr-analytics__winner--connection">
-      <span className="qr-analytics__winner-email">
-        {primary?.value || 'Unknown'}
-      </span>
-      {secondary ? (
-        <span className="qr-analytics__winner-meta">{secondary.value}</span>
-      ) : null}
+      {fields.map(({ label, value }) => (
+        <p key={label} className="qr-analytics__connection-line">
+          <span className="qr-analytics__connection-label">{label} :</span>{' '}
+          <span className="qr-analytics__connection-value">{value}</span>
+        </p>
+      ))}
     </div>
   )
 }
@@ -394,8 +392,7 @@ export function MemberAnalyticsScreen({ member, onBack }) {
             ) : (
               <ul className="qr-analytics__connection-list">
                 {connections.map((connection, index) => {
-                  const cardGroups = buildConnectionCardGroups(connection)
-                  const [firstCard, ...extraCards] = cardGroups
+                  const fields = buildConnectionDisplayFields(connection)
 
                   return (
                     <li
@@ -403,22 +400,13 @@ export function MemberAnalyticsScreen({ member, onBack }) {
                       className="qr-analytics__connection-entry"
                     >
                       <div className="qr-analytics__connection-row">
-                        <ConnectionCard fields={firstCard} />
+                        <ConnectionCard fields={fields} />
                         <div className="qr-analytics__connection-rank-wrap">
                           <span className="qr-analytics__connection-rank" aria-hidden>
                             {index + 1}
                           </span>
                         </div>
                       </div>
-
-                      {extraCards.map((fields, cardIndex) => (
-                        <div
-                          key={`${connection.id}-row-${cardIndex + 1}`}
-                          className="qr-analytics__connection-row--continued"
-                        >
-                          <ConnectionCard fields={fields} />
-                        </div>
-                      ))}
                     </li>
                   )
                 })}
