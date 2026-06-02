@@ -31,22 +31,25 @@ const ANALYTICS_ADMIN_EMAIL = normalizeMemberEmail(
 function ConnectionCard({ fields }) {
   const [primary, secondary] = fields
 
+  const renderField = (field, className) => {
+    if (!field) return null
+
+    return (
+      <span className={className}>
+        <span className="qr-analytics__connection-label">{field.label} :</span>{' '}
+        {field.value}
+      </span>
+    )
+  }
+
   return (
     <div className="qr-analytics__winner qr-analytics__winner--connection">
       {primary ? (
-        <span className="qr-analytics__winner-email">
-          <span className="qr-analytics__connection-label">{primary.label} :</span>{' '}
-          {primary.value}
-        </span>
+        renderField(primary, 'qr-analytics__winner-email')
       ) : (
         <span className="qr-analytics__winner-email">Unknown</span>
       )}
-      {secondary ? (
-        <span className="qr-analytics__winner-meta">
-          <span className="qr-analytics__connection-label">{secondary.label} :</span>{' '}
-          {secondary.value}
-        </span>
-      ) : null}
+      {renderField(secondary, 'qr-analytics__winner-meta')}
     </div>
   )
 }
