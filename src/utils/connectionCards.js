@@ -19,9 +19,9 @@ export function formatAnalyticsDate(value) {
  *   companyName?: string,
  *   createdAt?: import('firebase/firestore').Timestamp
  * }} connection
- * @returns {Array<{ label: string, value: string }>}
+ * @returns {Array<Array<{ label: string, value: string }>>}
  */
-export function buildConnectionDisplayFields(connection) {
+export function buildConnectionCardGroups(connection) {
   const fields = [
     { label: 'NAME', value: (connection.fullName || '').trim() },
     { label: 'COMPANY', value: (connection.companyName || '').trim() },
@@ -33,9 +33,14 @@ export function buildConnectionDisplayFields(connection) {
     { label: 'EMAIL', value: (connection.email || '').trim() },
   ].filter((field) => field.value && field.value !== '—')
 
-  if (fields.length === 0) {
-    return [{ label: 'CONNECTION', value: 'No details recorded' }]
+  const cards = []
+  for (let index = 0; index < fields.length; index += 2) {
+    cards.push(fields.slice(index, index + 2))
   }
 
-  return fields
+  if (cards.length === 0) {
+    return [[{ label: 'CONNECTION', value: 'No details recorded' }]]
+  }
+
+  return cards
 }
