@@ -128,8 +128,7 @@ export function CreateMemberScreen({
       !payload.fullName ||
       !payload.roleTitle ||
       !payload.phoneNumber ||
-      !payload.email ||
-      !payload.linkedInUrl
+      !payload.email
     ) {
       return
     }
@@ -143,7 +142,6 @@ export function CreateMemberScreen({
     form.roleTitle.trim() &&
     form.phoneNumber.trim() &&
     form.email.trim() &&
-    form.linkedInUrl.trim() &&
     (form.bio || '').trim().length <= BIO_MAX_CHARS
 
   return (
@@ -333,7 +331,7 @@ export function CreateMemberScreen({
 
             <label className="field-label" htmlFor="fld-linkedin">
               <MdLink aria-hidden className="field-label__icon" />
-              LinkedIn URL
+              LinkedIn URL — optional
             </label>
             <input
               id="fld-linkedin"
@@ -345,7 +343,6 @@ export function CreateMemberScreen({
               onChange={(e) => patchField('linkedInUrl', e.target.value)}
               disabled={busy}
               placeholder="https://www.linkedin.com/in/profile"
-              required
             />
 
           </div>
