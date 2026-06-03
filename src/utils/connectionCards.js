@@ -25,8 +25,8 @@ export function formatAnalyticsDate(value) {
 export function buildConnectionCardGroups(connection) {
   const fields = [
     { label: 'NAME', value: (connection.fullName || '').trim() },
-    { label: 'COMPANY', value: (connection.companyName || '').trim() },
     { label: 'PHONE NUMBER', value: (connection.contactNumber || '').trim() },
+    { label: 'COMPANY', value: (connection.companyName || '').trim() },
     {
       label: 'DATE',
       value: formatAnalyticsDate(connection.createdAt),
