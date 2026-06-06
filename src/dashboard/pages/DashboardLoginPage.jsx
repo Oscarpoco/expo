@@ -2,6 +2,12 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
+import {
+  HiOutlineArrowRight,
+  HiOutlineChartBarSquare,
+  HiOutlineKey,
+  HiOutlineShieldCheck,
+} from 'react-icons/hi2'
 
 import blueLogo from '../../assets/blueLogo.png'
 import { auth } from '../../firebase.js'
@@ -53,44 +59,82 @@ export function DashboardLoginPage() {
   return (
     <div className="dashboard-login">
       <motion.div
-        className={`dashboard-login__card${busy ? ' is-busy' : ''}`}
+        className="dashboard-login__shell"
         initial={loginCard.initial}
         animate={loginCard.animate}
         transition={loginCard.transition}
       >
-        {busy ? (
-          <DashboardLoader
-            variant="inline"
-            label="Signing in"
-            hint="Verifying member code and session…"
-          />
-        ) : (
-          <>
-            <img src={blueLogo} alt="WWISE" className="dashboard-login__logo" />
-            <h1 className="dashboard-login__title">Admin Dashboard</h1>
-            <p className="dashboard-login__subtitle">
-              Sign in with your member code to access event analytics and reporting.
-            </p>
-            <form onSubmit={handleSubmit}>
-              <label className="dashboard-login__label" htmlFor="dashboard-member-code">
-                Member code
-              </label>
-              <input
-                id="dashboard-member-code"
-                className="dashboard-login__input"
-                value={memberCode}
-                onChange={(event) => setMemberCode(event.target.value)}
-                placeholder="Enter member code"
-                autoComplete="off"
-                required
-              />
-              {error ? <p className="dashboard-login__error">{error}</p> : null}
-              <button type="submit" className="dashboard-login__btn">
-                Sign in
-              </button>
-            </form>
-          </>
-        )}
+        <aside className="dashboard-login__brand">
+          <div className="dashboard-login__brand-glow" aria-hidden />
+          <img src={blueLogo} alt="WWISE" className="dashboard-login__logo" />
+          <span className="dashboard-login__eyebrow">WWISE Expo · 2–4 June 2026</span>
+          <h1 className="dashboard-login__brand-title">Admin Command</h1>
+          <p className="dashboard-login__brand-desc">
+            Live analytics, connection records, and executive reporting for the expo event.
+          </p>
+          <ul className="dashboard-login__features">
+            <li>
+              <HiOutlineChartBarSquare aria-hidden />
+              Real-time event metrics
+            </li>
+            <li>
+              <HiOutlineShieldCheck aria-hidden />
+              Authorized administrators only
+            </li>
+          </ul>
+        </aside>
+
+        <div className={`dashboard-login__panel${busy ? ' is-busy' : ''}`}>
+          {busy ? (
+            <DashboardLoader
+              variant="inline"
+              label="Signing in"
+              hint="Verifying member code and session…"
+            />
+          ) : (
+            <>
+              <div className="dashboard-login__panel-head">
+                <h2 className="dashboard-login__title">Sign in</h2>
+                <p className="dashboard-login__subtitle">
+                  Enter your registered member code to access the analytics dashboard.
+                </p>
+              </div>
+
+              <form className="dashboard-login__form" onSubmit={handleSubmit}>
+                <label className="dashboard-login__label" htmlFor="dashboard-member-code">
+                  Member code
+                </label>
+                <div className="dashboard-login__field">
+                  <HiOutlineKey className="dashboard-login__field-icon" aria-hidden />
+                  <input
+                    id="dashboard-member-code"
+                    className="dashboard-login__input"
+                    value={memberCode}
+                    onChange={(event) => setMemberCode(event.target.value)}
+                    placeholder="Enter member code"
+                    autoComplete="off"
+                    required
+                  />
+                </div>
+
+                {error ? (
+                  <div className="dashboard-login__error" role="alert">
+                    {error}
+                  </div>
+                ) : null}
+
+                <button type="submit" className="dashboard-login__btn">
+                  Sign in to dashboard
+                  <HiOutlineArrowRight aria-hidden />
+                </button>
+              </form>
+
+              <p className="dashboard-login__footnote">
+                Restricted access · Session expires after 12 hours
+              </p>
+            </>
+          )}
+        </div>
       </motion.div>
     </div>
   )
