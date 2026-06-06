@@ -91,35 +91,30 @@ export function DashboardLayout({
           </div>
         </div>
 
-        <nav className="dashboard-topnav__tabs" aria-label="Dashboard sections">
-          {DASHBOARD_TABS.map(({ id, label, Icon }) => {
-            const isActive = activeTab === id
-            return (
-              <button
-                key={id}
-                type="button"
-                className={`dashboard-topnav__tab${isActive ? ' is-active' : ''}`}
-                onClick={() => onTabChange(id)}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <Icon className="dashboard-topnav__tab-icon" aria-hidden />
-                <span>{label}</span>
-                {isActive ? (
-                  <motion.span
-                    layoutId="dashboard-tab-indicator"
-                    className="dashboard-topnav__tab-indicator"
-                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                  />
-                ) : null}
-              </button>
-            )
-          })}
+        <nav className="dashboard-topnav__tabs-wrap" aria-label="Dashboard sections">
+          <div className="dashboard-topnav__tabs">
+            {DASHBOARD_TABS.map(({ id, label, Icon }) => {
+              const isActive = activeTab === id
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  className={`dashboard-topnav__tab${isActive ? ' is-active' : ''}`}
+                  onClick={() => onTabChange(id)}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <Icon className="dashboard-topnav__tab-icon" aria-hidden />
+                  <span>{label}</span>
+                </button>
+              )
+            })}
+          </div>
         </nav>
 
         <div className="dashboard-topnav__actions" ref={menuRef}>
           <button
             type="button"
-            className="dashboard-topnav__icon-btn"
+            className={`dashboard-topnav__icon-btn${refreshing ? ' is-refreshing' : ''}`}
             onClick={onRefresh}
             disabled={refreshing}
             aria-label="Refresh analytics"
@@ -130,7 +125,7 @@ export function DashboardLayout({
 
           <button
             type="button"
-            className="dashboard-topnav__avatar-btn"
+            className={`dashboard-topnav__avatar-btn${menuOpen ? ' is-open' : ''}`}
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
             aria-haspopup="menu"
