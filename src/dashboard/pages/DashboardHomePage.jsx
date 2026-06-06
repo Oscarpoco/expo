@@ -139,7 +139,13 @@ export function DashboardHomePage({ session }) {
       tabContent = <SummaryTab insights={insights} />
       break
     default:
-      tabContent = <OverviewTab overview={overview} />
+      tabContent = (
+        <OverviewTab
+          overview={overview}
+          bestPerformingDay={bestPerformingDay}
+          insightHighlight={insights.summary[0]}
+        />
+      )
   }
 
   return <DashboardLayout {...layoutProps}>{tabContent}</DashboardLayout>

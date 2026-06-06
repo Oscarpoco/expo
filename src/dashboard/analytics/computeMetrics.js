@@ -63,18 +63,20 @@ export function computeDashboardMetrics(dataset) {
   for (const row of stats) {
     const anonymous = asNumber(row.anonymousCount)
     const known = asNumber(row.knownCount)
-    totalProfileScans += anonymous
+    const rowTotal = asNumber(row.totalCount) || anonymous + known
+    totalProfileScans += rowTotal
     totalKnownFromStats += known
-    if (anonymous + known > 0) activeMembers += 1
+    if (rowTotal > 0) activeMembers += 1
   }
 
   const totalKnownConnections = connections.length
   const totalRegistrations = members.length
   const totalCompetitionEntries = winners.length
-  const totalInteractions = totalProfileScans + totalKnownConnections
+  const totalInteractions = totalProfileScans
+  const totalAnonymousScans = Math.max(0, totalProfileScans - totalKnownConnections)
   const engagementRate =
-    totalInteractions > 0
-      ? Math.round((totalKnownConnections / totalInteractions) * 1000) / 10
+    totalProfileScans > 0
+      ? Math.round((totalKnownConnections / totalProfileScans) * 1000) / 10
       : 0
 
   const dailyMap = new Map()
@@ -216,7 +218,7 @@ export function computeDashboardMetrics(dataset) {
     .sort((a, b) => b.value - a.value)
 
   const interactionSplit = [
-    { name: 'Profile scans', value: totalProfileScans },
+    { name: 'Anonymous scans', value: totalAnonymousScans },
     { name: 'Known connections', value: totalKnownConnections },
   ].filter((item) => item.value > 0)
 
@@ -224,13 +226,14 @@ export function computeDashboardMetrics(dataset) {
     .map((row) => {
       const anonymous = asNumber(row.anonymousCount)
       const known = asNumber(row.knownCount)
+      const totalEngagement = asNumber(row.totalCount) || anonymous + known
       return {
         memberId: row.memberId || row.id,
         memberName: row.memberName || 'Unknown',
         memberSlug: row.memberSlug || '',
         profileScans: anonymous,
         knownConnections: known,
-        totalEngagement: anonymous + known,
+        totalEngagement,
       }
     })
     .filter((row) => row.totalEngagement > 0)
@@ -264,6 +267,7 @@ export function computeDashboardMetrics(dataset) {
   const insights = buildInsights({
     totalRegistrations,
     totalKnownConnections,
+    totalAnonymousScans,
     totalProfileScans,
     totalCompetitionEntries,
     engagementRate,
@@ -278,6 +282,7 @@ export function computeDashboardMetrics(dataset) {
     overview: {
       totalRegistrations,
       totalKnownConnections,
+      totalAnonymousScans,
       totalProfileScans,
       totalCompetitionEntries,
       totalInteractions,
@@ -328,6 +333,7 @@ function buildInsights(input) {
   const {
     totalRegistrations,
     totalKnownConnections,
+    totalAnonymousScans,
     totalProfileScans,
     totalCompetitionEntries,
     engagementRate,
@@ -344,7 +350,7 @@ function buildInsights(input) {
 
   if (totalProfileScans > 0) {
     lines.push(
-      `${totalProfileScans.toLocaleString()} anonymous profile scans were recorded alongside ${totalKnownConnections} form submissions (${engagementRate}% connect rate).`,
+      `${totalProfileScans.toLocaleString()} total profile scans (${totalAnonymousScans.toLocaleString()} anonymous, ${totalKnownConnections.toLocaleString()} known). Connect rate: ${engagementRate}%.`,
     )
   }
 

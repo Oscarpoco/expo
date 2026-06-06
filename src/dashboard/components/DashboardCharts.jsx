@@ -20,13 +20,13 @@ const CHART_COLORS = ['#2b7fd4', '#5bbce4', '#1f5fa8', '#94a3b8', '#64748b']
 const CHART_HEIGHT = 280
 const CHART_HEIGHT_TALL = Math.round(CHART_HEIGHT * 1.5)
 
-export function DailyActivityChart({ data }) {
+export function DailyActivityChart({ data, height = 280 }) {
   if (!data?.length) {
     return <p className="dashboard-panel__subtitle">No daily activity recorded yet.</p>
   }
 
   return (
-    <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+    <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#9ca3af" />
