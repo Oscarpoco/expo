@@ -126,7 +126,9 @@ export function DashboardHomePage({ session }) {
       )
       break
     case 'charts':
-      tabContent = <ChartsTab charts={charts} heatmap={metrics.heatmap} />
+      tabContent = (
+        <ChartsTab charts={charts} heatmap={metrics.heatmap} overview={overview} />
+      )
       break
     case 'users':
       tabContent = <UsersTab userAnalysis={userAnalysis} />
