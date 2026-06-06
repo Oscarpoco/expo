@@ -144,7 +144,12 @@ export function DashboardHomePage({ session }) {
       break
     case 'summary':
       tabContent = (
-        <SummaryTab insights={insights} prizeWinners={metrics.prizeWinners} />
+        <SummaryTab
+          insights={insights}
+          prizeWinners={metrics.prizeWinners}
+          overview={overview}
+          bestPerformingDay={bestPerformingDay}
+        />
       )
       break
     default:
