@@ -1,4 +1,6 @@
 /** Event days — June 2–4, 2026 (local). */
+import { formatAnalyticsDate } from '../../utils/connectionCards.js'
+
 export const EVENT_DAYS = [
   { day: 1, label: 'Day 1', date: new Date(2026, 5, 2) },
   { day: 2, label: 'Day 2', date: new Date(2026, 5, 3) },
@@ -51,10 +53,11 @@ function asNumber(value) {
  *   connections: object[],
  *   stats: object[],
  *   winners: object[],
+ *   prizeWinners?: object[],
  * }} dataset
  */
 export function computeDashboardMetrics(dataset) {
-  const { members, connections, stats, winners } = dataset
+  const { members, connections, stats, winners, prizeWinners = [] } = dataset
 
   let totalProfileScans = 0
   let totalKnownFromStats = 0
@@ -278,6 +281,8 @@ export function computeDashboardMetrics(dataset) {
     activeMembers,
   })
 
+  const prizeWinnerRows = buildPrizeWinnerRows(prizeWinners, winners, members)
+
   return {
     overview: {
       totalRegistrations,
@@ -321,8 +326,34 @@ export function computeDashboardMetrics(dataset) {
       memberRankings,
       timeline,
     },
+    prizeWinners: prizeWinnerRows,
     insights,
   }
+}
+
+/**
+ * @param {object[]} prizeWinners
+ * @param {object[]} winners
+ * @param {object[]} members
+ */
+function buildPrizeWinnerRows(prizeWinners, winners, members) {
+  const memberById = new Map(members.map((member) => [member.id, member]))
+
+  return prizeWinners.map((record) => {
+    const entry = winners.find((winner) => winner.id === record.winnerEntryId)
+    const drawnBy = memberById.get(record.memberId)
+    const referrer = memberById.get(record.referrerMemberId)
+
+    return {
+      id: record.id,
+      drawOrder: asNumber(record.drawOrder),
+      email: (record.email || entry?.email || '').trim(),
+      drawnAtLabel: formatAnalyticsDate(record.drawnAt),
+      drawnByName: (drawnBy?.fullName || '').trim() || 'Unknown',
+      referrerName: (referrer?.fullName || '').trim(),
+      referrerSlug: (entry?.memberSlug || '').trim(),
+    }
+  })
 }
 
 /**

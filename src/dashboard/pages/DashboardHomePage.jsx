@@ -121,6 +121,7 @@ export function DashboardHomePage({ session }) {
         <ComparisonTab
           eventDayComparison={eventDayComparison}
           bestPerformingDay={bestPerformingDay}
+          eventDayBar={charts.eventDayBar}
         />
       )
       break
@@ -136,7 +137,9 @@ export function DashboardHomePage({ session }) {
       )
       break
     case 'summary':
-      tabContent = <SummaryTab insights={insights} />
+      tabContent = (
+        <SummaryTab insights={insights} prizeWinners={metrics.prizeWinners} />
+      )
       break
     default:
       tabContent = (

@@ -23,6 +23,41 @@ export const PRIZE_WINNERS_COLLECTION = 'prizeWinners'
  *   drawnAt?: import('firebase/firestore').Timestamp
  * }>>}
  */
+export async function listAllPrizeWinners() {
+  const snap = await getDocs(collection(db, PRIZE_WINNERS_COLLECTION))
+  const rows = snap.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data(),
+  }))
+  rows.sort((a, b) => {
+    const orderDiff = asNumber(a.drawOrder) - asNumber(b.drawOrder)
+    if (orderDiff !== 0) return orderDiff
+    const aTime = a.drawnAt?.toDate?.()?.getTime?.() ?? 0
+    const bTime = b.drawnAt?.toDate?.()?.getTime?.() ?? 0
+    return aTime - bTime
+  })
+  return rows
+}
+
+/**
+ * @param {unknown} value
+ * @returns {number}
+ */
+function asNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0
+}
+
+/**
+ * @returns {Promise<Array<{
+ *   id: string,
+ *   memberId: string,
+ *   winnerEntryId: string,
+ *   email: string,
+ *   referrerMemberId?: string,
+ *   drawOrder: number,
+ *   drawnAt?: import('firebase/firestore').Timestamp
+ * }>>}
+ */
 export async function listPrizeWinnersByMemberId(memberId) {
   const memberKey = (memberId || '').trim()
   if (!memberKey) return []

@@ -3,7 +3,8 @@ import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../firebase.js'
 import { listAllConnections, MEMBER_CONNECTION_STATS_COLLECTION } from './connectionsRepo.js'
 import { MEMBERS_COLLECTION } from './membersRepo.js'
-import { listWinnerEntries, WINNERS_COLLECTION } from './winnersRepo.js'
+import { listWinnerEntries } from './winnersRepo.js'
+import { listAllPrizeWinners } from './prizeWinnersRepo.js'
 
 /**
  * @returns {Promise<Array<Record<string, unknown> & { id: string }>>}
@@ -33,15 +34,17 @@ export async function listAllMemberConnectionStats() {
  *   connections: Array<Record<string, unknown> & { id: string }>,
  *   stats: Array<Record<string, unknown> & { id: string }>,
  *   winners: Array<Record<string, unknown> & { id: string }>,
+ *   prizeWinners: Array<Record<string, unknown> & { id: string }>,
  *   fetchedAt: number
  * }>}
  */
 export async function fetchDashboardDataset() {
-  const [members, connections, stats, winners] = await Promise.all([
+  const [members, connections, stats, winners, prizeWinners] = await Promise.all([
     listAllMembers(),
     listAllConnections(),
     listAllMemberConnectionStats(),
     listWinnerEntries(),
+    listAllPrizeWinners(),
   ])
 
   return {
@@ -49,6 +52,7 @@ export async function fetchDashboardDataset() {
     connections,
     stats,
     winners,
+    prizeWinners,
     fetchedAt: Date.now(),
   }
 }
