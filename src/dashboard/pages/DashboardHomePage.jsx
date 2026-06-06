@@ -135,7 +135,11 @@ export function DashboardHomePage({ session }) {
       break
     case 'tables':
       tabContent = (
-        <TablesTab connectionRows={connectionRows} memberRows={memberRows} />
+        <TablesTab
+          connectionRows={connectionRows}
+          memberRows={memberRows}
+          overview={overview}
+        />
       )
       break
     case 'summary':

@@ -1,14 +1,23 @@
 import { useMemo, useState } from 'react'
+import {
+  HiArrowDownTray,
+  HiChevronDown,
+  HiChevronLeft,
+  HiChevronRight,
+  HiChevronUp,
+  HiOutlineMagnifyingGlass,
+} from 'react-icons/hi2'
 
 import { downloadCsvFile } from '../../utils/exportAnalyticsCsv.js'
 
 /**
  * @param {{
- *   columns: Array<{ key: string, label: string, render?: (row: object) => string }>,
+ *   columns: Array<{ key: string, label: string, render?: (row: object) => import('react').ReactNode }>,
  *   rows: object[],
  *   searchKeys?: string[],
  *   exportFilename?: string,
- *   emptyMessage?: string
+ *   emptyMessage?: string,
+ *   searchPlaceholder?: string
  * }} props
  */
 export function DataTable({
@@ -17,6 +26,7 @@ export function DataTable({
   searchKeys = [],
   exportFilename = 'export.csv',
   emptyMessage = 'No records found.',
+  searchPlaceholder = 'Search records…',
 }) {
   const [query, setQuery] = useState('')
   const [sortKey, setSortKey] = useState(columns[0]?.key || '')
@@ -38,9 +48,9 @@ export function DataTable({
     }
     if (sortKey) {
       next = [...next].sort((a, b) => {
-        const av = String(a[sortKey] ?? '')
-        const bv = String(b[sortKey] ?? '')
-        const cmp = av.localeCompare(bv, undefined, { numeric: true })
+        const av = a[`${sortKey}Sort`] ?? a[sortKey] ?? ''
+        const bv = b[`${sortKey}Sort`] ?? b[sortKey] ?? ''
+        const cmp = String(av).localeCompare(String(bv), undefined, { numeric: true })
         return sortDir === 'asc' ? cmp : -cmp
       })
     }
@@ -66,9 +76,15 @@ export function DataTable({
   const exportCsv = () => {
     const header = columns.map((col) => col.label)
     const body = filtered.map((row) =>
-      columns.map((col) =>
-        col.render ? col.render(row) : String(row[col.key] ?? ''),
-      ),
+      columns.map((col) => {
+        if (col.render) {
+          const rendered = col.render(row)
+          return typeof rendered === 'string' || typeof rendered === 'number'
+            ? String(rendered)
+            : String(row[col.key] ?? '')
+        }
+        return String(row[col.key] ?? '')
+      }),
     )
     const csv = [header, ...body]
       .map((line) =>
@@ -83,40 +99,69 @@ export function DataTable({
     downloadCsvFile(csv, exportFilename)
   }
 
+  const rangeStart = filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1
+  const rangeEnd = Math.min(currentPage * pageSize, filtered.length)
+
   return (
-    <div>
-      <div className="dashboard-table-toolbar">
-        <input
-          type="search"
-          className="dashboard-table-toolbar__search"
-          placeholder="Search…"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value)
-            setPage(1)
-          }}
-        />
-        <button type="button" className="dashboard-btn" onClick={exportCsv}>
+    <div className="data-table">
+      <div className="data-table__toolbar">
+        <label className="data-table__search">
+          <HiOutlineMagnifyingGlass aria-hidden />
+          <input
+            type="search"
+            placeholder={searchPlaceholder}
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value)
+              setPage(1)
+            }}
+          />
+        </label>
+        <span className="data-table__count">
+          {filtered.length.toLocaleString()} record{filtered.length === 1 ? '' : 's'}
+        </span>
+        <button type="button" className="data-table__export" onClick={exportCsv}>
+          <HiArrowDownTray aria-hidden />
           Export CSV
         </button>
       </div>
 
-      <div className="dashboard-table-wrap">
-        <table className="dashboard-table">
+      <div className="data-table__wrap">
+        <table className="data-table__grid">
           <thead>
             <tr>
-              {columns.map((col) => (
-                <th key={col.key} onClick={() => toggleSort(col.key)}>
-                  {col.label}
-                  {sortKey === col.key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''}
-                </th>
-              ))}
+              {columns.map((col) => {
+                const isSorted = sortKey === col.key
+                return (
+                  <th
+                    key={col.key}
+                    className={`${isSorted ? 'is-sorted' : ''} ${isSorted ? `is-sorted-${sortDir}` : ''}`}
+                    onClick={() => toggleSort(col.key)}
+                    aria-sort={
+                      isSorted ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'
+                    }
+                  >
+                    <span className="data-table__th-label">{col.label}</span>
+                    <span className="data-table__sort-icon" aria-hidden>
+                      {isSorted ? (
+                        sortDir === 'asc' ? (
+                          <HiChevronUp />
+                        ) : (
+                          <HiChevronDown />
+                        )
+                      ) : (
+                        <HiChevronDown className="is-idle" />
+                      )}
+                    </span>
+                  </th>
+                )
+              })}
             </tr>
           </thead>
           <tbody>
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="dashboard-table__empty">
+                <td colSpan={columns.length} className="data-table__empty">
                   {emptyMessage}
                 </td>
               </tr>
@@ -124,7 +169,7 @@ export function DataTable({
               pageRows.map((row) => (
                 <tr key={row.id || JSON.stringify(row)}>
                   {columns.map((col) => (
-                    <td key={col.key}>
+                    <td key={col.key} data-label={col.label}>
                       {col.render ? col.render(row) : String(row[col.key] ?? '—')}
                     </td>
                   ))}
@@ -135,27 +180,33 @@ export function DataTable({
         </table>
       </div>
 
-      <div className="dashboard-pagination">
-        <span>
-          Showing {filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}–
-          {Math.min(currentPage * pageSize, filtered.length)} of {filtered.length}
+      <div className="data-table__footer">
+        <span className="data-table__range">
+          Showing {rangeStart}–{rangeEnd} of {filtered.length.toLocaleString()}
         </span>
-        <div className="dashboard-pagination__controls">
+        <div className="data-table__pager">
           <button
             type="button"
-            className="dashboard-btn"
+            className="data-table__page-btn"
             disabled={currentPage <= 1}
             onClick={() => setPage((p) => p - 1)}
+            aria-label="Previous page"
           >
+            <HiChevronLeft aria-hidden />
             Previous
           </button>
+          <span className="data-table__page-indicator">
+            Page {currentPage} of {totalPages}
+          </span>
           <button
             type="button"
-            className="dashboard-btn"
+            className="data-table__page-btn"
             disabled={currentPage >= totalPages}
             onClick={() => setPage((p) => p + 1)}
+            aria-label="Next page"
           >
             Next
+            <HiChevronRight aria-hidden />
           </button>
         </div>
       </div>
