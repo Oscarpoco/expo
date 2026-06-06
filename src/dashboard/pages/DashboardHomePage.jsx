@@ -131,7 +131,7 @@ export function DashboardHomePage({ session }) {
       )
       break
     case 'users':
-      tabContent = <UsersTab userAnalysis={userAnalysis} />
+      tabContent = <UsersTab userAnalysis={userAnalysis} overview={overview} />
       break
     case 'tables':
       tabContent = (
