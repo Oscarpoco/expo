@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 
@@ -48,7 +49,12 @@ export function DashboardLoginPage() {
 
   return (
     <div className="dashboard-login">
-      <div className="dashboard-login__card">
+      <motion.div
+        className="dashboard-login__card"
+        initial={{ opacity: 0, y: 12, scale: 0.992 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      >
         <img src={blueLogo} alt="WWISE" className="dashboard-login__logo" />
         <h1 className="dashboard-login__title">Admin Dashboard</h1>
         <p className="dashboard-login__subtitle">
@@ -72,7 +78,7 @@ export function DashboardLoginPage() {
             {busy ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
-      </div>
+      </motion.div>
     </div>
   )
 }

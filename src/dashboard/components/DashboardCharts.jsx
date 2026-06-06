@@ -17,6 +17,8 @@ import {
 
 const CHART_BLUE = '#2b7fd4'
 const CHART_COLORS = ['#2b7fd4', '#5bbce4', '#1f5fa8', '#94a3b8', '#64748b']
+const CHART_HEIGHT = 280
+const CHART_HEIGHT_TALL = Math.round(CHART_HEIGHT * 1.5)
 
 export function DailyActivityChart({ data }) {
   if (!data?.length) {
@@ -24,7 +26,7 @@ export function DailyActivityChart({ data }) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#9ca3af" />
@@ -62,7 +64,7 @@ export function DailyActivityChart({ data }) {
 
 export function EventDayBarChart({ data }) {
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
       <BarChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#9ca3af" />
@@ -83,14 +85,14 @@ export function InterestPieChart({ data }) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={CHART_HEIGHT_TALL}>
       <PieChart>
         <Pie
           data={data}
           dataKey="value"
           nameKey="name"
-          innerRadius={55}
-          outerRadius={95}
+          innerRadius={82}
+          outerRadius={142}
           paddingAngle={2}
         >
           {data.map((entry, index) => (
@@ -132,7 +134,7 @@ export function InteractionDonutChart({ data }) {
 
 export function HourlyBarChart({ data }) {
   return (
-    <ResponsiveContainer width="100%" height={260}>
+    <ResponsiveContainer width="100%" height={CHART_HEIGHT_TALL}>
       <BarChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis dataKey="hour" tick={{ fontSize: 11 }} stroke="#9ca3af" interval={2} />
