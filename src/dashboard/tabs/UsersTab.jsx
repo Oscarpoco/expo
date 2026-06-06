@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import {
   HiOutlineArrowPath,
   HiOutlineClock,
@@ -9,14 +8,13 @@ import {
   HiOutlineUsers,
 } from 'react-icons/hi2'
 
-const PANEL_MOTION = {
-  hidden: { opacity: 0, y: 14 },
-  show: (index) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] },
-  }),
-}
+import {
+  MotionGrid,
+  MotionHero,
+  MotionPage,
+  MotionPanel,
+  MotionSection,
+} from '../components/MotionPrimitives.jsx'
 
 const TIMELINE_TYPES = {
   connection: { label: 'Connection', icon: HiOutlineLink, tone: 'blue' },
@@ -50,7 +48,6 @@ function formatTimelineDate(date) {
  *   subtitle?: string,
  *   children: import('react').ReactNode,
  *   wide?: boolean,
- *   index?: number,
  * }} props
  */
 function UserPanel({
@@ -60,16 +57,9 @@ function UserPanel({
   subtitle,
   children,
   wide = false,
-  index = 0,
 }) {
   return (
-    <motion.article
-      className={`users-panel${wide ? ' users-panel--wide' : ''}`}
-      custom={index}
-      variants={PANEL_MOTION}
-      initial="hidden"
-      animate="show"
-    >
+    <MotionPanel className={`users-panel${wide ? ' users-panel--wide' : ''}`}>
       <div className="users-panel__head">
         <span className={`users-panel__icon users-panel__icon--${tone}`}>
           <Icon aria-hidden />
@@ -80,7 +70,7 @@ function UserPanel({
         </div>
       </div>
       <div className="users-panel__body">{children}</div>
-    </motion.article>
+    </MotionPanel>
   )
 }
 
@@ -102,13 +92,8 @@ export function UsersTab({ userAnalysis, overview }) {
   const maxConnections = Math.max(...mostActiveMembers.map((m) => m.count), 1)
 
   return (
-    <div className="users">
-      <motion.section
-        className="users-hero"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-      >
+    <MotionPage className="users">
+      <MotionHero className="users-hero">
         <div className="users-hero__main">
           <span className="users-hero__eyebrow">Member analytics · WWISE Expo</span>
           <h2 className="users-hero__title">User connection analysis</h2>
@@ -165,20 +150,19 @@ export function UsersTab({ userAnalysis, overview }) {
             </div>
           )}
         </div>
-      </motion.section>
+      </MotionHero>
 
-      <section className="users-section">
+      <MotionSection className="users-section">
         <h3 className="users-section__label">
           <HiOutlineUserGroup aria-hidden />
           Member performance
         </h3>
-        <div className="users-grid">
+        <MotionGrid className="users-grid">
           <UserPanel
             icon={HiOutlineLink}
             tone="blue"
             title="Most active members"
             subtitle="Ranked by connections received on their profile"
-            index={0}
           >
             {mostActiveMembers.length === 0 ? (
               <div className="users-empty">
@@ -219,7 +203,6 @@ export function UsersTab({ userAnalysis, overview }) {
             tone="navy"
             title="Engagement ranking"
             subtitle="Profile scans plus known connections per member"
-            index={1}
           >
             {memberRankings.length === 0 ? (
               <div className="users-empty">
@@ -262,21 +245,20 @@ export function UsersTab({ userAnalysis, overview }) {
               </ul>
             )}
           </UserPanel>
-        </div>
-      </section>
+        </MotionGrid>
+      </MotionSection>
 
-      <section className="users-section">
+      <MotionSection className="users-section">
         <h3 className="users-section__label">
           <HiOutlineArrowPath aria-hidden />
           Visitor engagement
         </h3>
-        <div className="users-grid">
+        <MotionGrid className="users-grid">
           <UserPanel
             icon={HiOutlineArrowPath}
             tone="sky"
             title="Repeat visitor emails"
             subtitle="Visitors who submitted more than one connection"
-            index={2}
           >
             {repeatVisitors.length === 0 ? (
               <div className="users-empty">
@@ -302,7 +284,6 @@ export function UsersTab({ userAnalysis, overview }) {
             tone="blue"
             title="Recent activity"
             subtitle="Latest connections, registrations, and competition entries"
-            index={3}
           >
             {timeline.length === 0 ? (
               <div className="users-empty">
@@ -345,8 +326,8 @@ export function UsersTab({ userAnalysis, overview }) {
               </ul>
             )}
           </UserPanel>
-        </div>
-      </section>
-    </div>
+        </MotionGrid>
+      </MotionSection>
+    </MotionPage>
   )
 }

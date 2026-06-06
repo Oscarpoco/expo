@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import {
   HiOutlineBolt,
   HiOutlineCalendarDays,
@@ -9,14 +8,14 @@ import {
   HiOutlineTrophy,
 } from 'react-icons/hi2'
 
-const PANEL_MOTION = {
-  hidden: { opacity: 0, y: 14 },
-  show: (index) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] },
-  }),
-}
+import {
+  MotionFade,
+  MotionGrid,
+  MotionHero,
+  MotionPage,
+  MotionPanel,
+  MotionSection,
+} from '../components/MotionPrimitives.jsx'
 
 /**
  * @param {{
@@ -26,7 +25,6 @@ const PANEL_MOTION = {
  *   subtitle?: string,
  *   children: import('react').ReactNode,
  *   wide?: boolean,
- *   index?: number,
  * }} props
  */
 function SummaryPanel({
@@ -36,16 +34,9 @@ function SummaryPanel({
   subtitle,
   children,
   wide = false,
-  index = 0,
 }) {
   return (
-    <motion.article
-      className={`summary-panel${wide ? ' summary-panel--wide' : ''}`}
-      custom={index}
-      variants={PANEL_MOTION}
-      initial="hidden"
-      animate="show"
-    >
+    <MotionPanel className={`summary-panel${wide ? ' summary-panel--wide' : ''}`}>
       <div className="summary-panel__head">
         <span className={`summary-panel__icon summary-panel__icon--${tone}`}>
           <Icon aria-hidden />
@@ -56,7 +47,7 @@ function SummaryPanel({
         </div>
       </div>
       <div className="summary-panel__body">{children}</div>
-    </motion.article>
+    </MotionPanel>
   )
 }
 
@@ -74,13 +65,8 @@ export function SummaryTab({ insights, prizeWinners, overview, bestPerformingDay
   const headlineInsight = insights.summary[0]
 
   return (
-    <div className="summary">
-      <motion.section
-        className="summary-hero"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-      >
+    <MotionPage className="summary">
+      <MotionHero className="summary-hero">
         <div className="summary-hero__main">
           <span className="summary-hero__eyebrow">Executive report · WWISE Expo</span>
           <h2 className="summary-hero__title">Event summary & insights</h2>
@@ -128,21 +114,16 @@ export function SummaryTab({ insights, prizeWinners, overview, bestPerformingDay
             <span>Prize winners drawn</span>
           </div>
         </div>
-      </motion.section>
+      </MotionHero>
 
       {headlineInsight ? (
-        <motion.div
-          className="summary-highlight"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.28, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <MotionFade className="summary-highlight">
           <HiOutlineBolt aria-hidden />
           <p>{headlineInsight}</p>
-        </motion.div>
+        </MotionFade>
       ) : null}
 
-      <section className="summary-section">
+      <MotionSection className="summary-section">
         <h3 className="summary-section__label">
           <HiOutlineTrophy aria-hidden />
           Prize draw
@@ -153,7 +134,6 @@ export function SummaryTab({ insights, prizeWinners, overview, bestPerformingDay
           title="Prize winners"
           subtitle="Drawn winners from the prizeWinners collection"
           wide
-          index={0}
         >
           {prizeWinners.length === 0 ? (
             <div className="summary-empty">
@@ -201,20 +181,19 @@ export function SummaryTab({ insights, prizeWinners, overview, bestPerformingDay
             </ul>
           )}
         </SummaryPanel>
-      </section>
+      </MotionSection>
 
-      <section className="summary-section">
+      <MotionSection className="summary-section">
         <h3 className="summary-section__label">
           <HiOutlineChartBarSquare aria-hidden />
           Analysis
         </h3>
-        <div className="summary-grid">
+        <MotionGrid className="summary-grid">
           <SummaryPanel
             icon={HiOutlineCheckCircle}
             tone="blue"
             title="Key insights"
             subtitle="Data-driven observations from event activity"
-            index={1}
           >
             <ul className="summary-insight-list">
               {insights.summary.map((line, index) => (
@@ -231,7 +210,6 @@ export function SummaryTab({ insights, prizeWinners, overview, bestPerformingDay
             tone="navy"
             title="Recommendations"
             subtitle="Suggested next steps based on current metrics"
-            index={2}
           >
             <ul className="summary-rec-list">
               {insights.recommendations.map((line, index) => (
@@ -244,8 +222,8 @@ export function SummaryTab({ insights, prizeWinners, overview, bestPerformingDay
               ))}
             </ul>
           </SummaryPanel>
-        </div>
-      </section>
-    </div>
+        </MotionGrid>
+      </MotionSection>
+    </MotionPage>
   )
 }

@@ -7,6 +7,8 @@ import blueLogo from '../../assets/blueLogo.png'
 import { auth } from '../../firebase.js'
 import { findMemberByCode } from '../../services/membersRepo.js'
 import { signInMemberSession } from '../../services/sessionAuth.js'
+import { DashboardLoader } from '../components/DashboardLoader.jsx'
+import { useDashMotion } from '../motion/index.js'
 import {
   clearDashboardSession,
   isDashboardAdminEmail,
@@ -15,6 +17,7 @@ import {
 
 export function DashboardLoginPage() {
   const navigate = useNavigate()
+  const { loginCard } = useDashMotion()
   const [memberCode, setMemberCode] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
@@ -50,34 +53,44 @@ export function DashboardLoginPage() {
   return (
     <div className="dashboard-login">
       <motion.div
-        className="dashboard-login__card"
-        initial={{ opacity: 0, y: 12, scale: 0.992 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        className={`dashboard-login__card${busy ? ' is-busy' : ''}`}
+        initial={loginCard.initial}
+        animate={loginCard.animate}
+        transition={loginCard.transition}
       >
-        <img src={blueLogo} alt="WWISE" className="dashboard-login__logo" />
-        <h1 className="dashboard-login__title">Admin Dashboard</h1>
-        <p className="dashboard-login__subtitle">
-          Sign in with your member code to access event analytics and reporting.
-        </p>
-        <form onSubmit={handleSubmit}>
-          <label className="dashboard-login__label" htmlFor="dashboard-member-code">
-            Member code
-          </label>
-          <input
-            id="dashboard-member-code"
-            className="dashboard-login__input"
-            value={memberCode}
-            onChange={(event) => setMemberCode(event.target.value)}
-            placeholder="Enter member code"
-            autoComplete="off"
-            required
+        {busy ? (
+          <DashboardLoader
+            variant="inline"
+            label="Signing in"
+            hint="Verifying member code and session…"
           />
-          {error ? <p className="dashboard-login__error">{error}</p> : null}
-          <button type="submit" className="dashboard-login__btn" disabled={busy}>
-            {busy ? 'Signing in…' : 'Sign in'}
-          </button>
-        </form>
+        ) : (
+          <>
+            <img src={blueLogo} alt="WWISE" className="dashboard-login__logo" />
+            <h1 className="dashboard-login__title">Admin Dashboard</h1>
+            <p className="dashboard-login__subtitle">
+              Sign in with your member code to access event analytics and reporting.
+            </p>
+            <form onSubmit={handleSubmit}>
+              <label className="dashboard-login__label" htmlFor="dashboard-member-code">
+                Member code
+              </label>
+              <input
+                id="dashboard-member-code"
+                className="dashboard-login__input"
+                value={memberCode}
+                onChange={(event) => setMemberCode(event.target.value)}
+                placeholder="Enter member code"
+                autoComplete="off"
+                required
+              />
+              {error ? <p className="dashboard-login__error">{error}</p> : null}
+              <button type="submit" className="dashboard-login__btn">
+                Sign in
+              </button>
+            </form>
+          </>
+        )}
       </motion.div>
     </div>
   )

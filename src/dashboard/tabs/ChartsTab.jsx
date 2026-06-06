@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import {
   HiOutlineChartBarSquare,
   HiOutlineChartPie,
@@ -17,15 +16,13 @@ import {
   InteractionDonutChart,
   InterestPieChart,
 } from '../components/DashboardCharts.jsx'
-
-const PANEL_MOTION = {
-  hidden: { opacity: 0, y: 14 },
-  show: (index) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] },
-  }),
-}
+import {
+  MotionGrid,
+  MotionHero,
+  MotionPage,
+  MotionPanel,
+  MotionSection,
+} from '../components/MotionPrimitives.jsx'
 
 /**
  * @param {{
@@ -36,7 +33,6 @@ const PANEL_MOTION = {
  *   children: import('react').ReactNode,
  *   wide?: boolean,
  *   tall?: boolean,
- *   index?: number,
  * }} props
  */
 function ChartPanel({
@@ -47,15 +43,10 @@ function ChartPanel({
   children,
   wide = false,
   tall = false,
-  index = 0,
 }) {
   return (
-    <motion.article
+    <MotionPanel
       className={`charts-panel${wide ? ' charts-panel--wide' : ''}${tall ? ' charts-panel--tall' : ''}`}
-      custom={index}
-      variants={PANEL_MOTION}
-      initial="hidden"
-      animate="show"
     >
       <div className="charts-panel__head">
         <span className={`charts-panel__icon charts-panel__icon--${tone}`}>
@@ -67,7 +58,7 @@ function ChartPanel({
         </div>
       </div>
       <div className="charts-panel__body">{children}</div>
-    </motion.article>
+    </MotionPanel>
   )
 }
 
@@ -85,13 +76,8 @@ export function ChartsTab({ charts, heatmap, overview }) {
   )
 
   return (
-    <div className="charts">
-      <motion.section
-        className="charts-hero"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-      >
+    <MotionPage className="charts">
+      <MotionHero className="charts-hero">
         <div className="charts-hero__main">
           <span className="charts-hero__eyebrow">Visual analytics · WWISE Expo</span>
           <h2 className="charts-hero__title">Charts & visualizations</h2>
@@ -144,21 +130,20 @@ export function ChartsTab({ charts, heatmap, overview }) {
             </div>
           ) : null}
         </div>
-      </motion.section>
+      </MotionHero>
 
-      <section className="charts-section">
+      <MotionSection className="charts-section">
         <h3 className="charts-section__label">
           <HiOutlinePresentationChartLine aria-hidden />
           Trends
         </h3>
-        <div className="charts-grid">
+        <MotionGrid className="charts-grid">
           <ChartPanel
             icon={HiOutlineChartBarSquare}
             tone="blue"
             title="Daily activity trend"
             subtitle="Connections, registrations, and competition entries over time"
             wide
-            index={0}
           >
             <DailyActivityChart data={charts.dailyActivity} />
           </ChartPanel>
@@ -167,25 +152,23 @@ export function ChartsTab({ charts, heatmap, overview }) {
             tone="navy"
             title="Event day comparison"
             subtitle="Side-by-side totals for each expo day"
-            index={1}
           >
             <EventDayBarChart data={charts.eventDayBar} />
           </ChartPanel>
-        </div>
-      </section>
+        </MotionGrid>
+      </MotionSection>
 
-      <section className="charts-section">
+      <MotionSection className="charts-section">
         <h3 className="charts-section__label">
           <HiOutlineChartPie aria-hidden />
           Breakdowns
         </h3>
-        <div className="charts-grid">
+        <MotionGrid className="charts-grid">
           <ChartPanel
             icon={HiOutlineChartPie}
             tone="sky"
             title="Interaction split"
             subtitle="Anonymous profile scans vs known connections"
-            index={2}
           >
             <InteractionDonutChart data={charts.interactionSplit} />
           </ChartPanel>
@@ -195,7 +178,6 @@ export function ChartsTab({ charts, heatmap, overview }) {
             title="Areas of interest"
             subtitle="Visitor interest categories from connection forms"
             tall
-            index={3}
           >
             <InterestPieChart data={charts.interestBreakdown} />
           </ChartPanel>
@@ -205,31 +187,29 @@ export function ChartsTab({ charts, heatmap, overview }) {
             title="Connections by hour"
             subtitle="Hourly distribution of connection submissions"
             tall
-            index={4}
           >
             <HourlyBarChart data={charts.hourlyDistribution} />
           </ChartPanel>
-        </div>
-      </section>
+        </MotionGrid>
+      </MotionSection>
 
-      <section className="charts-section">
+      <MotionSection className="charts-section">
         <h3 className="charts-section__label">
           <HiOutlineMap aria-hidden />
           Activity patterns
         </h3>
-        <div className="charts-grid">
+        <MotionGrid className="charts-grid">
           <ChartPanel
             icon={HiOutlineMap}
             tone="sky"
             title="Connection heatmap"
             subtitle="Event days × hour of day — darker cells indicate more connections"
             wide
-            index={5}
           >
             <ConnectionHeatmap heatmap={heatmap} />
           </ChartPanel>
-        </div>
-      </section>
-    </div>
+        </MotionGrid>
+      </MotionSection>
+    </MotionPage>
   )
 }

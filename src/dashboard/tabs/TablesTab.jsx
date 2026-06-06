@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   HiOutlineBuildingOffice2,
   HiOutlineLink,
@@ -8,15 +8,12 @@ import {
 } from 'react-icons/hi2'
 
 import { DataTable } from '../components/DataTable.jsx'
-
-const PANEL_MOTION = {
-  hidden: { opacity: 0, y: 14 },
-  show: (index) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] },
-  }),
-}
+import {
+  MotionFade,
+  MotionHero,
+  MotionPage,
+} from '../components/MotionPrimitives.jsx'
+import { useDashMotion } from '../motion/index.js'
 
 const VIEW_OPTIONS = [
   { id: 'connections', label: 'Connections', icon: HiOutlineLink },
@@ -30,7 +27,6 @@ const VIEW_OPTIONS = [
  *   title: string,
  *   subtitle?: string,
  *   children: import('react').ReactNode,
- *   index?: number,
  * }} props
  */
 function ConnectionsPanel({
@@ -39,15 +35,16 @@ function ConnectionsPanel({
   title,
   subtitle,
   children,
-  index = 0,
 }) {
+  const { panel, tabExit } = useDashMotion()
+
   return (
     <motion.article
       className="connections-panel"
-      custom={index}
-      variants={PANEL_MOTION}
+      variants={panel.variants}
       initial="hidden"
       animate="show"
+      exit={tabExit}
     >
       <div className="connections-panel__head">
         <span className={`connections-panel__icon connections-panel__icon--${tone}`}>
@@ -148,13 +145,8 @@ export function TablesTab({ connectionRows, memberRows, overview }) {
   ]
 
   return (
-    <div className="connections">
-      <motion.section
-        className="connections-hero"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-      >
+    <MotionPage className="connections">
+      <MotionHero className="connections-hero">
         <div className="connections-hero__main">
           <span className="connections-hero__eyebrow">Records · WWISE Expo</span>
           <h2 className="connections-hero__title">Connection records</h2>
@@ -194,9 +186,9 @@ export function TablesTab({ connectionRows, memberRows, overview }) {
             <span>Team registrations</span>
           </div>
         </div>
-      </motion.section>
+      </MotionHero>
 
-      <div className="connections-mini-stats">
+      <MotionFade className="connections-mini-stats">
         <div className="connections-mini-stat">
           <strong>{stats.members.toLocaleString()}</strong>
           <span>Members with connections</span>
@@ -217,9 +209,9 @@ export function TablesTab({ connectionRows, memberRows, overview }) {
             <span>Competition entries</span>
           </div>
         ) : null}
-      </div>
+      </MotionFade>
 
-      <div className="connections-view-toggle" role="tablist" aria-label="Record type">
+      <MotionFade className="connections-view-toggle" role="tablist" aria-label="Record type">
         {VIEW_OPTIONS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -236,54 +228,51 @@ export function TablesTab({ connectionRows, memberRows, overview }) {
             </span>
           </button>
         ))}
-      </div>
+      </MotionFade>
 
-      {activeView === 'connections' ? (
-        <ConnectionsPanel
-          icon={HiOutlineLink}
-          tone="blue"
-          title="Visitor connections"
-          subtitle="Connect form submissions with member attribution and interest areas"
-          index={0}
-        >
-          <DataTable
-            columns={connectionColumns}
-            rows={connectionRows}
-            searchKeys={['fullName', 'email', 'companyName', 'memberName', 'areaOfInterest', 'date']}
-            exportFilename="wwise-connections.csv"
-            searchPlaceholder="Search connections…"
-            emptyMessage="No connections recorded yet."
-          />
-        </ConnectionsPanel>
-      ) : (
-        <ConnectionsPanel
-          icon={HiOutlineUserPlus}
-          tone="navy"
-          title="Team registrations"
-          subtitle="Registered expo members with company and member code"
-          index={1}
-        >
-          <DataTable
-            columns={registrationColumns}
-            rows={memberRows}
-            searchKeys={['fullName', 'email', 'companyName', 'memberCode', 'date']}
-            exportFilename="wwise-registrations.csv"
-            searchPlaceholder="Search registrations…"
-            emptyMessage="No registrations recorded yet."
-          />
-        </ConnectionsPanel>
-      )}
+      <AnimatePresence mode="wait">
+        {activeView === 'connections' ? (
+          <ConnectionsPanel
+            key="connections"
+            icon={HiOutlineLink}
+            tone="blue"
+            title="Visitor connections"
+            subtitle="Connect form submissions with member attribution and interest areas"
+          >
+            <DataTable
+              columns={connectionColumns}
+              rows={connectionRows}
+              searchKeys={['fullName', 'email', 'companyName', 'memberName', 'areaOfInterest', 'date']}
+              exportFilename="wwise-connections.csv"
+              searchPlaceholder="Search connections…"
+              emptyMessage="No connections recorded yet."
+            />
+          </ConnectionsPanel>
+        ) : (
+          <ConnectionsPanel
+            key="registrations"
+            icon={HiOutlineUserPlus}
+            tone="navy"
+            title="Team registrations"
+            subtitle="Registered expo members with company and member code"
+          >
+            <DataTable
+              columns={registrationColumns}
+              rows={memberRows}
+              searchKeys={['fullName', 'email', 'companyName', 'memberCode', 'date']}
+              exportFilename="wwise-registrations.csv"
+              searchPlaceholder="Search registrations…"
+              emptyMessage="No registrations recorded yet."
+            />
+          </ConnectionsPanel>
+        )}
+      </AnimatePresence>
 
-      <motion.p
-        className="connections-footnote"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.35, duration: 0.3 }}
-      >
+      <MotionFade className="connections-footnote">
         <HiOutlineTableCells aria-hidden />
         Use the view toggle to switch datasets. Sort any column by clicking its header. CSV
         export includes your current search filter.
-      </motion.p>
-    </div>
+      </MotionFade>
+    </MotionPage>
   )
 }

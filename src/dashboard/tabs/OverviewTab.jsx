@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import {
   HiOutlineBolt,
   HiOutlineCalendarDays,
@@ -11,6 +10,12 @@ import {
   HiOutlineUsers,
 } from 'react-icons/hi2'
 
+import {
+  MotionGrid,
+  MotionHero,
+  MotionItem,
+  MotionPage,
+} from '../components/MotionPrimitives.jsx'
 import { StatCard } from '../components/StatCard.jsx'
 
 /** @param {{ rate: number }} props */
@@ -29,16 +34,6 @@ function ConnectRateRing({ rate }) {
       </div>
     </div>
   )
-}
-
-const GRID_MOTION = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.05 } },
-}
-
-const ITEM_MOTION = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } },
 }
 
 /**
@@ -117,13 +112,8 @@ export function OverviewTab({ overview, bestPerformingDay, insightHighlight }) {
   ]
 
   return (
-    <div className="overview">
-      <motion.section
-        className="overview-hero"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-      >
+    <MotionPage className="overview">
+      <MotionHero className="overview-hero">
         <div className="overview-hero__main">
           <span className="overview-hero__eyebrow">WWISE Expo · 2–4 June 2026</span>
           <h2 className="overview-hero__title">Event performance snapshot</h2>
@@ -162,20 +152,15 @@ export function OverviewTab({ overview, bestPerformingDay, insightHighlight }) {
             <span>Known connections</span>
           </div>
         </div>
-      </motion.section>
+      </MotionHero>
 
-      <motion.div
-        className="dashboard-stat-grid overview-stat-grid"
-        variants={GRID_MOTION}
-        initial="hidden"
-        animate="show"
-      >
+      <MotionGrid className="dashboard-stat-grid overview-stat-grid">
         {stats.map((stat) => (
-          <motion.div key={stat.key} variants={ITEM_MOTION}>
+          <MotionItem key={stat.key}>
             <StatCard {...stat} />
-          </motion.div>
+          </MotionItem>
         ))}
-      </motion.div>
-    </div>
+      </MotionGrid>
+    </MotionPage>
   )
 }

@@ -10,20 +10,8 @@ import {
 
 import blueLogo from '../../assets/blueLogo.png'
 import { DASHBOARD_TABS } from '../constants/tabs.js'
-
-const TAB_MOTION = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -6 },
-  transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] },
-}
-
-const MENU_MOTION = {
-  initial: { opacity: 0, y: -10, scale: 0.98 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: -8, scale: 0.98 },
-  transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] },
-}
+import { DashboardRefreshBar } from './DashboardLoader.jsx'
+import { useDashMotion } from '../motion/index.js'
 
 /**
  * @param {{
@@ -51,6 +39,7 @@ export function DashboardLayout({
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
+  const { tabExit, menu } = useDashMotion()
 
   const initials = (session.fullName || session.email || 'A')
     .split(/\s+/)
@@ -149,7 +138,10 @@ export function DashboardLayout({
                 <motion.div
                   className="dashboard-topnav__menu"
                   role="menu"
-                  {...MENU_MOTION}
+                  initial={menu.initial}
+                  animate={menu.animate}
+                  exit={menu.exit}
+                  transition={menu.transition}
                 >
                   <div className="dashboard-topnav__menu-head">
                     <p className="dashboard-topnav__menu-name">
@@ -214,8 +206,11 @@ export function DashboardLayout({
       </header>
 
       <main className="dashboard-main">
+        <AnimatePresence>
+          {refreshing ? <DashboardRefreshBar key="refresh-bar" /> : null}
+        </AnimatePresence>
         <AnimatePresence mode="wait">
-          <motion.div key={activeTab} className="dashboard-tab-panel" {...TAB_MOTION}>
+          <motion.div key={activeTab} className="dashboard-tab-panel" exit={tabExit}>
             {children}
           </motion.div>
         </AnimatePresence>

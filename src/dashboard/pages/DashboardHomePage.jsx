@@ -8,6 +8,7 @@ import {
 } from '../../utils/exportAnalyticsCsv.js'
 import { formatAnalyticsDate } from '../../utils/connectionCards.js'
 import { DashboardLayout } from '../components/DashboardLayout.jsx'
+import { DashboardLoader } from '../components/DashboardLoader.jsx'
 import { useDashboardData } from '../hooks/useDashboardData.js'
 import { ChartsTab } from '../tabs/ChartsTab.jsx'
 import { ComparisonTab } from '../tabs/ComparisonTab.jsx'
@@ -85,7 +86,10 @@ export function DashboardHomePage({ session }) {
   if (loading && !metrics) {
     return (
       <DashboardLayout {...layoutProps}>
-        <div className="dashboard-state">Loading analytics…</div>
+        <DashboardLoader
+          label="Loading analytics"
+          hint="Fetching members, connections, and event metrics…"
+        />
       </DashboardLayout>
     )
   }

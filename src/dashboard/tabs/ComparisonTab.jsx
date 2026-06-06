@@ -9,15 +9,13 @@ import {
 } from 'react-icons/hi2'
 
 import { EventDayBarChart } from '../components/DashboardCharts.jsx'
-
-const CARD_MOTION = {
-  hidden: { opacity: 0, y: 16 },
-  show: (index) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] },
-  }),
-}
+import {
+  MotionGrid,
+  MotionHero,
+  MotionPage,
+  MotionPanel,
+} from '../components/MotionPrimitives.jsx'
+import { useDashMotion } from '../motion/index.js'
 
 const METRIC_CONFIG = [
   { key: 'connections', label: 'Connections', icon: HiOutlineLink, tone: 'blue' },
@@ -33,6 +31,8 @@ const METRIC_CONFIG = [
  * }} props
  */
 export function ComparisonTab({ eventDayComparison, bestPerformingDay, eventDayBar = [] }) {
+  const { item } = useDashMotion()
+
   const maxActivity = Math.max(
     ...eventDayComparison.map((day) => day.totalActivity),
     1,
@@ -61,13 +61,8 @@ export function ComparisonTab({ eventDayComparison, bestPerformingDay, eventDayB
   )
 
   return (
-    <div className="comparison">
-      <motion.section
-        className="comparison-hero"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-      >
+    <MotionPage className="comparison">
+      <MotionHero className="comparison-hero">
         <div className="comparison-hero__main">
           <span className="comparison-hero__eyebrow">2–4 June 2026 · Event days</span>
           <h2 className="comparison-hero__title">3-day performance comparison</h2>
@@ -90,10 +85,10 @@ export function ComparisonTab({ eventDayComparison, bestPerformingDay, eventDayB
             </div>
           ) : null}
         </div>
-      </motion.section>
+      </MotionHero>
 
-      <div className="comparison-grid">
-        {eventDayComparison.map((day, index) => {
+      <MotionGrid className="comparison-grid">
+        {eventDayComparison.map((day) => {
           const isBest = bestPerformingDay?.day === day.day
           const activityWidth = Math.round((day.totalActivity / maxActivity) * 100)
 
@@ -101,10 +96,7 @@ export function ComparisonTab({ eventDayComparison, bestPerformingDay, eventDayB
             <motion.article
               key={day.day}
               className={`comparison-day${isBest ? ' is-best' : ''}`}
-              custom={index}
-              variants={CARD_MOTION}
-              initial="hidden"
-              animate="show"
+              variants={item.variants}
             >
               <div className="comparison-day__head">
                 <div className="comparison-day__badge">{day.day}</div>
@@ -179,22 +171,17 @@ export function ComparisonTab({ eventDayComparison, bestPerformingDay, eventDayB
             </motion.article>
           )
         })}
-      </div>
+      </MotionGrid>
 
       {eventDayBar.length > 0 ? (
-        <motion.section
-          className="dashboard-panel comparison-chart"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.32, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <MotionPanel className="dashboard-panel comparison-chart">
           <h3 className="dashboard-panel__title">Visual comparison</h3>
           <p className="dashboard-panel__subtitle">
             Bar chart view of daily connections, registrations, and competition entries
           </p>
           <EventDayBarChart data={eventDayBar} />
-        </motion.section>
+        </MotionPanel>
       ) : null}
-    </div>
+    </MotionPage>
   )
 }
